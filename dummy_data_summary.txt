@@ -1,0 +1,48 @@
+# KiMiS Dummy Data Seed Summary
+
+## 1. Knowledge Articles
+- **Title**: Code Review Standards
+  - **Content**: Detailed guide on descriptive naming, security checks, and unit tests.
+  - **Tags**: engineering, quality
+- **Title**: CI/CD Deployment Guide
+  - **Content**: Procedures for 'npm test' and production approval requirements.
+  - **Tags**: devops, guide
+
+## 2. Visual Workflow: "Software Release Pipeline"
+A complete graph-based process representing a DevOps pipeline.
+
+### Nodes:
+- **Start** (id: 7): Entry point.
+- **Build & Compile** (id: 8, Action): Compiles source code.
+- **Run Automated Tests** (id: 9, Decision): Linked to 'Code Review Standards'.
+- **Manual QA Review** (id: 10, Action): Human verification in staging.
+- **Rollback Strategy** (id: 11, Action): Reverting on failure.
+- **Production Success** (id: 12, End): Flow terminal.
+
+### Edges (Flow):
+- Start → Build
+- Build → Tests
+- Tests → QA (Condition: "All tests PASS")
+- Tests → Rollback (Condition: "Test FAILURE")
+- QA → Production Success (Condition: "Approved")
+- QA → Rollback (Condition: "Rejected")
+
+---
+
+# Bob's Data (bob@test.com)
+## 1. Workspace: "Bob's Engineering Hub" (ID: 3)
+## 2. Knowledge Articles
+- **Title**: Internal Systems Overview
+- **Title**: Safety Protocols (Linked to Workflow)
+
+## 3. Visual Workflow: "Incident Response Plan"
+A critical process for handling system outages.
+
+### Nodes:
+- **Start** (id: 13)
+- **Identify Incident** (id: 14, Action)
+- **Criticality Check** (id: 15, Decision): Linked to 'Safety Protocols'.
+- **Triage Team Notification** (id: 16, Action): Condition 'High Criticality'.
+- **Standard Fix** (id: 17, Action): Condition 'Low/Medium'.
+- **Resolved & Documented** (id: 18, End)
+

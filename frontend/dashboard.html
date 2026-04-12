@@ -14,7 +14,8 @@
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* Changed from center to accommodate larger content */
+            align-items: flex-start;
+            /* Changed from center to accommodate larger content */
             padding: 40px 20px;
             margin: 0;
             color: #333;
@@ -34,19 +35,22 @@
             padding: 40px;
             border-radius: 10px;
             width: 350px;
-            flex-shrink: 0; /* Left side panel doesn't shrink */
+            flex-shrink: 0;
+            /* Left side panel doesn't shrink */
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
             text-align: center;
         }
-        
+
         .workspaces-card {
             background: white;
             padding: 40px;
             border-radius: 10px;
-            flex-grow: 1; /* Right panel takes remaining space */
+            flex-grow: 1;
+            /* Right panel takes remaining space */
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
             text-align: left;
-            display: none; /* Shown via JS if logged in */
+            display: none;
+            /* Shown via JS if logged in */
         }
 
         h2 {
@@ -141,7 +145,8 @@
         }
 
         #adminPanel {
-            display: none; /* Hidden by default */
+            display: none;
+            /* Hidden by default */
             margin-top: 20px;
             background: #e8f4f8;
             padding: 15px;
@@ -205,7 +210,9 @@
             margin-top: 0;
         }
 
-        .manage-btn:hover { background: #2980b9; }
+        .manage-btn:hover {
+            background: #2980b9;
+        }
 
         .form-group {
             display: flex;
@@ -213,7 +220,8 @@
             margin-bottom: 20px;
         }
 
-        .form-group input, .form-group select {
+        .form-group input,
+        .form-group select {
             flex-grow: 1;
             padding: 8px;
             border: 1px solid #ccc;
@@ -225,7 +233,10 @@
             margin-top: 0;
             background: #2ecc71;
         }
-        .form-group button:hover { background: #27ae60; }
+
+        .form-group button:hover {
+            background: #27ae60;
+        }
 
         .members-table {
             width: 100%;
@@ -233,13 +244,16 @@
             margin-top: 15px;
         }
 
-        .members-table th, .members-table td {
+        .members-table th,
+        .members-table td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
         }
 
-        .members-table th { background: #e8f4f8; }
+        .members-table th {
+            background: #e8f4f8;
+        }
 
         .action-select {
             padding: 4px;
@@ -254,7 +268,7 @@
             margin-top: 0;
             font-size: 12px;
         }
-        
+
         .manager-header {
             display: flex;
             justify-content: space-between;
@@ -263,7 +277,7 @@
             padding-bottom: 10px;
             margin-bottom: 15px;
         }
-        
+
         .back-btn {
             background: #95a5a6;
             width: auto;
@@ -277,6 +291,7 @@
             border-bottom: 2px solid #ccc;
             margin-bottom: 20px;
         }
+
         .tab-btn {
             width: auto;
             margin: 0;
@@ -287,18 +302,21 @@
             cursor: pointer;
             border-bottom: 3px solid transparent;
         }
+
         .tab-btn.active {
             color: #2b5876;
             background: #e8f4f8;
             border-bottom: 3px solid #2b5876;
         }
+
         .tab-content {
             display: none;
         }
+
         .tab-content.active {
             display: block;
         }
-        
+
         .article-card {
             background: #fdfdfd;
             border: 1px solid #ddd;
@@ -308,24 +326,28 @@
             cursor: pointer;
             transition: box-shadow 0.2s;
         }
+
         .article-card:hover {
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
+
         .article-card h4 {
             margin: 0 0 5px 0;
             color: #2b5876;
         }
+
         .article-meta {
             font-size: 12px;
             color: #888;
         }
-        
+
         .article-editor {
             background: #fff;
             padding: 20px;
             border: 1px solid #ddd;
             border-radius: 5px;
         }
+
         .article-editor textarea {
             width: 100%;
             height: 200px;
@@ -336,6 +358,7 @@
             border-radius: 4px;
             box-sizing: border-box;
         }
+
         .markdown-preview {
             background: #f4f6f8;
             padding: 15px;
@@ -344,8 +367,70 @@
             min-height: 100px;
             margin-bottom: 15px;
         }
+
         .markdown-preview img {
             max-width: 100%;
+        }
+
+        /* Workflow Node & Edge Styles */
+        .node-item {
+            background: #fdfdfd;
+            border: 1px solid #eee;
+            border-left: 4px solid #3498db;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+
+        .node-item.node-start {
+            border-left-color: #27ae60;
+        }
+
+        .node-item.node-end {
+            border-left-color: #e74c3c;
+        }
+
+        .node-item.node-decision {
+            border-left-color: #f39c12;
+        }
+
+        .node-item.node-note {
+            border-left-color: #95a5a6;
+        }
+
+        .node-type-badge {
+            font-size: 10px;
+            text-transform: uppercase;
+            padding: 2px 6px;
+            border-radius: 10px;
+            background: #eee;
+            color: #555;
+            margin-left: 8px;
+        }
+
+        .edge-item {
+            background: #f9f9f9;
+            border: 1px solid #eee;
+            padding: 8px 12px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .edge-arrow {
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        .section-label {
+            font-size: 13px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 20px 0 10px 0;
         }
     </style>
 
@@ -353,174 +438,287 @@
 
 <body>
 
-<div class="dashboard-container">
-    <div class="dashboard-card">
-        <h2 id="welcomeMsg">Welcome to the Dashboard!</h2>
-        
-        <img id="displayImg" src="https://via.placeholder.com/100" alt="Profile Picture" class="profile-img">
+    <div class="dashboard-container">
+        <div class="dashboard-card">
+            <h2 id="welcomeMsg">Welcome to the Dashboard!</h2>
 
-        <div id="userInfo">
-            <div class="info-row"><strong>First Name:</strong> <span id="userFirstName"></span></div>
-            <div class="info-row"><strong>Last Name:</strong> <span id="userLastName"></span></div>
-            <div class="info-row"><strong>Username:</strong> <span id="userUsername"></span></div>
-            <div class="info-row"><strong>Email:</strong> <span id="userEmail"></span></div>
-            <div class="info-row"><strong>Role:</strong> <span id="userRole"></span></div>
-            <div class="info-row"><strong>Job Title:</strong> <span id="userJobTitle"></span></div>
-            <div class="info-row"><strong>Department:</strong> <span id="userDepartment"></span></div>
-            <button id="editBtn" class="edit-mode-btn">Edit Profile</button>
-        </div>
+            <img id="displayImg" src="https://via.placeholder.com/100" alt="Profile Picture" class="profile-img">
 
-        <form id="editForm">
-            <label>First Name (required):</label>
-            <input type="text" id="editFirstName" class="edit-input" required>
-            
-            <label>Last Name:</label>
-            <input type="text" id="editLastName" class="edit-input">
-            
-            <label>Username (required):</label>
-            <input type="text" id="editUsername" class="edit-input" required>
-            
-            <label>Job Title:</label>
-            <input type="text" id="editJobTitle" class="edit-input">
-            
-            <label>Department:</label>
-            <input type="text" id="editDepartment" class="edit-input">
-            
-            <label>Profile Picture:</label>
-            <input type="file" id="editProfilePic" class="edit-input" accept="image/*">
-
-            <div class="btn-group">
-                <button type="submit" class="save-btn">Save Changes</button>
-                <button type="button" id="cancelBtn" class="cancel-btn">Cancel</button>
+            <div id="userInfo">
+                <div class="info-row"><strong>First Name:</strong> <span id="userFirstName"></span></div>
+                <div class="info-row"><strong>Last Name:</strong> <span id="userLastName"></span></div>
+                <div class="info-row"><strong>Username:</strong> <span id="userUsername"></span></div>
+                <div class="info-row"><strong>Email:</strong> <span id="userEmail"></span></div>
+                <div class="info-row"><strong>Role:</strong> <span id="userRole"></span></div>
+                <div class="info-row"><strong>Job Title:</strong> <span id="userJobTitle"></span></div>
+                <div class="info-row"><strong>Department:</strong> <span id="userDepartment"></span></div>
+                <button id="editBtn" class="edit-mode-btn">Edit Profile</button>
             </div>
-        </form>
 
-        <div id="adminPanel">
-            <h3>Admin Panel 🛡️</h3>
-            <p>You can see this because your role is <strong>admin</strong>.</p>
-            <button id="fetchAdminDataBtn" class="admin-btn">Fetch Sensitive Admin Data</button>
-            <div id="adminResult">Waiting for request...</div>
-        </div>
+            <form id="editForm">
+                <label>First Name (required):</label>
+                <input type="text" id="editFirstName" class="edit-input" required>
 
-        <button id="logoutBtn">Logout</button>
-    </div>
+                <label>Last Name:</label>
+                <input type="text" id="editLastName" class="edit-input">
 
-    <!-- Right Side: Workspaces -->
-    <div class="workspaces-card" id="workspacesSection">
-        <!-- Main Workspaces List View -->
-        <div id="workspacesListView">
-            <h2>My Workspaces</h2>
-            
-            <form id="createWorkspaceForm" class="form-group">
-                <input type="text" id="newWsName" placeholder="Workspace Name" required>
-                <input type="text" id="newWsDesc" placeholder="Description (Optional)">
-                <button type="submit">Create</button>
+                <label>Username (required):</label>
+                <input type="text" id="editUsername" class="edit-input" required>
+
+                <label>Job Title:</label>
+                <input type="text" id="editJobTitle" class="edit-input">
+
+                <label>Department:</label>
+                <input type="text" id="editDepartment" class="edit-input">
+
+                <label>Profile Picture:</label>
+                <input type="file" id="editProfilePic" class="edit-input" accept="image/*">
+
+                <div class="btn-group">
+                    <button type="submit" class="save-btn">Save Changes</button>
+                    <button type="button" id="cancelBtn" class="cancel-btn">Cancel</button>
+                </div>
             </form>
 
-            <div id="workspacesContainer">
-                <p>Loading workspaces...</p>
+            <div id="adminPanel">
+                <h3>Admin Panel 🛡️</h3>
+                <p>You can see this because your role is <strong>admin</strong>.</p>
+                <button id="fetchAdminDataBtn" class="admin-btn">Fetch Sensitive Admin Data</button>
+                <div id="adminResult">Waiting for request...</div>
             </div>
+
+            <button id="logoutBtn">Logout</button>
         </div>
 
-        <!-- Single Workspace Manager View -->
-        <div id="workspaceManagerView" style="display: none;">
-            <div class="manager-header">
-                <div>
-                    <h2 id="managerWsName" style="margin-bottom:0;">Workspace</h2>
-                    <span id="managerWsRole" style="color:#7f8c8d;font-size:14px;"></span>
-                </div>
-                <button type="button" id="backToWsListBtn" class="back-btn">Back to List</button>
-            </div>
+        <!-- Right Side: Workspaces -->
+        <div class="workspaces-card" id="workspacesSection">
+            <!-- Main Workspaces List View -->
+            <div id="workspacesListView">
+                <h2>My Workspaces</h2>
 
-            <!-- TABS -->
-            <div class="tabs-header">
-                <button type="button" class="tab-btn active" onclick="switchWsTab('members')">Members</button>
-                <button type="button" class="tab-btn" onclick="switchWsTab('articles')">Articles</button>
-            </div>
-
-            <!-- MEMBERS TAB -->
-            <div id="tab-members" class="tab-content active">
-                <form id="addMemberForm" class="form-group" style="display:none;">
-                    <input type="email" id="newMemberEmail" placeholder="User Email" required>
-                    <select id="newMemberRole">
-                        <option value="Viewer">Viewer</option>
-                        <option value="Editor">Editor</option>
-                        <option value="Admin">Admin</option>
-                    </select>
-                    <button type="submit">Add Member</button>
+                <form id="createWorkspaceForm" class="form-group">
+                    <input type="text" id="newWsName" placeholder="Workspace Name" required>
+                    <input type="text" id="newWsDesc" placeholder="Description (Optional)">
+                    <button type="submit">Create</button>
                 </form>
 
-                <table class="members-table">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="membersTableBody">
-                        <!-- Members will be loaded here -->
-                    </tbody>
-                </table>
+                <div id="workspacesContainer">
+                    <p>Loading workspaces...</p>
+                </div>
             </div>
 
-            <!-- ARTICLES TAB -->
-            <div id="tab-articles" class="tab-content">
-                <div id="articlesListView">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                        <h3 style="margin:0;">Knowledge Base</h3>
-                        <button id="createArticleBtn" class="manage-btn" style="display:none;" onclick="openArticleEditor(null)">+ New Article</button>
+            <!-- Single Workspace Manager View -->
+            <div id="workspaceManagerView" style="display: none;">
+                <div class="manager-header">
+                    <div>
+                        <h2 id="managerWsName" style="margin-bottom:0;">Workspace</h2>
+                        <span id="managerWsRole" style="color:#7f8c8d;font-size:14px;"></span>
                     </div>
-                    <!-- Articles will be loaded here -->
-                    <div id="articlesListContainer">Loading articles...</div>
+                    <button type="button" id="backToWsListBtn" class="back-btn">Back to List</button>
                 </div>
 
-                <div id="articleEditorView" class="article-editor" style="display: none;">
-                    <h3 id="editorTitleMode">Create Article</h3>
-                    
-                    <!-- Reading Mode View -->
-                    <div id="articleReadMode" style="display:none; margin-bottom:20px;">
-                        <h2 id="readArticleTitle" style="margin-bottom:5px;"></h2>
-                        <div id="readArticleTags" style="margin-bottom:15px; font-size:12px; color:#3498db; font-weight:bold;"></div>
-                        <div id="readArticleContent" class="markdown-preview"></div>
-                        <p class="article-meta">Last updated by <span id="readArticleAuthor"></span></p>
-                        
-                        <div class="btn-group" id="readModeActions" style="margin-top:20px; display:none;">
-                            <button type="button" class="manage-btn" onclick="toggleArticleEditMode(true)">Edit Content</button>
-                            <button type="button" class="remove-btn" onclick="archiveArticle()">Archive</button>
+                <!-- TABS -->
+                <div class="tabs-header">
+                    <button type="button" class="tab-btn active" onclick="switchWsTab('members')">Members</button>
+                    <button type="button" class="tab-btn" onclick="switchWsTab('articles')">Articles</button>
+                    <button type="button" class="tab-btn" onclick="switchWsTab('workflows')">Workflows</button>
+                </div>
+
+                <!-- MEMBERS TAB -->
+                <div id="tab-members" class="tab-content active">
+                    <form id="addMemberForm" class="form-group" style="display:none;">
+                        <input type="email" id="newMemberEmail" placeholder="User Email" required>
+                        <select id="newMemberRole">
+                            <option value="Viewer">Viewer</option>
+                            <option value="Editor">Editor</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                        <button type="submit">Add Member</button>
+                    </form>
+
+                    <table class="members-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="membersTableBody">
+                            <!-- Members will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- ARTICLES TAB -->
+                <div id="tab-articles" class="tab-content">
+                    <div id="articlesListView">
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                            <h3 style="margin:0;">Knowledge Base</h3>
+                            <button id="createArticleBtn" class="manage-btn" style="display:none;"
+                                onclick="openArticleEditor(null)">+ New Article</button>
                         </div>
+                        <!-- Articles will be loaded here -->
+                        <div id="articlesListContainer">Loading articles...</div>
                     </div>
 
-                    <!-- Editing Mode Form -->
-                    <form id="articleForm" style="display:block;">
-                        <input type="hidden" id="editArticleId" value="">
-                        
-                        <label>Title:</label>
-                        <input type="text" id="editArticleTitle" class="edit-input" required>
-                        
-                        <label>Tags (comma separated):</label>
-                        <input type="text" id="editArticleTags" class="edit-input" placeholder="e.g. tech, setup, guide">
-                        
-                        <label>Content (Markdown supported):</label>
-                        <textarea id="editArticleContent" required placeholder="# Title\n\nWrite your content here..."></textarea>
-                        
-                        <div style="text-align:right; font-size:12px; margin-bottom:5px;">
-                            <a href="javascript:void(0)" onclick="previewMarkdown()">Preview Markdown</a>
-                        </div>
-                        <div id="markdownPreviewBox" class="markdown-preview" style="display:none;"></div>
+                    <div id="articleEditorView" class="article-editor" style="display: none;">
+                        <h3 id="editorTitleMode">Create Article</h3>
 
-                        <div class="btn-group">
-                            <button type="submit" class="save-btn">Save Article</button>
+                        <!-- Reading Mode View -->
+                        <div id="articleReadMode" style="display:none; margin-bottom:20px;">
+                            <h2 id="readArticleTitle" style="margin-bottom:5px;"></h2>
+                            <div id="readArticleTags"
+                                style="margin-bottom:15px; font-size:12px; color:#3498db; font-weight:bold;"></div>
+                            <div id="readArticleContent" class="markdown-preview"></div>
+                            <p class="article-meta">Last updated by <span id="readArticleAuthor"></span></p>
+
+                            <div class="btn-group" id="readModeActions" style="margin-top:20px; display:none;">
+                                <button type="button" class="manage-btn" onclick="toggleArticleEditMode(true)">Edit
+                                    Content</button>
+                                <button type="button" class="remove-btn" onclick="archiveArticle()">Archive</button>
+                            </div>
                         </div>
-                    </form>
-                    
-                    <button type="button" class="cancel-btn" style="width:auto; margin-top:15px;" onclick="closeArticleEditor()">Back</button>
+
+                        <!-- Editing Mode Form -->
+                        <form id="articleForm" style="display:block;">
+                            <input type="hidden" id="editArticleId" value="">
+
+                            <label>Title:</label>
+                            <input type="text" id="editArticleTitle" class="edit-input" required>
+
+                            <label>Tags (comma separated):</label>
+                            <input type="text" id="editArticleTags" class="edit-input"
+                                placeholder="e.g. tech, setup, guide">
+
+                            <label>Content (Markdown supported):</label>
+                            <textarea id="editArticleContent" required
+                                placeholder="# Title\n\nWrite your content here..."></textarea>
+
+                            <div style="text-align:right; font-size:12px; margin-bottom:5px;">
+                                <a href="javascript:void(0)" onclick="previewMarkdown()">Preview Markdown</a>
+                            </div>
+                            <div id="markdownPreviewBox" class="markdown-preview" style="display:none;"></div>
+
+                            <div class="btn-group">
+                                <button type="submit" class="save-btn">Save Article</button>
+                            </div>
+                        </form>
+
+                        <button type="button" class="cancel-btn" style="width:auto; margin-top:15px;"
+                            onclick="closeArticleEditor()">Back</button>
+                    </div>
+                </div>
+
+                <!-- WORKFLOWS TAB -->
+                <div id="tab-workflows" class="tab-content">
+                    <div id="wfListView">
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                            <h3 style="margin:0;">Visual Workflows</h3>
+                            <button id="createWorkflowBtn" class="manage-btn" style="display:none;"
+                                onclick="showCreateWorkflowForm()">+ New Workflow</button>
+                        </div>
+
+                        <form id="createWorkflowFormUI" class="form-group"
+                            style="display:none; background:#f4f6f8; padding:15px; border-radius:5px;">
+                            <input type="text" id="newWfTitle" placeholder="Workflow Title" required>
+                            <input type="text" id="newWfDesc" placeholder="Description">
+                            <button type="submit">Create</button>
+                            <button type="button" class="cancel-btn" style="margin-top:0; padding:8px 15px;"
+                                onclick="hideCreateWorkflowForm()">X</button>
+                        </form>
+
+                        <div id="workflowsListContainer">Loading workflows...</div>
+                    </div>
+
+                    <div id="wfDetailView" style="display:none;">
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:15px;">
+                            <div>
+                                <h3 id="viewWfTitle" style="margin:0;">Workflow Title</h3>
+                                <p id="viewWfDesc" style="font-size:14px; color:#666; margin:5px 0 0 0;"></p>
+                            </div>
+                            <div>
+                                <button type="button" class="cancel-btn" style="width:auto; margin:0;"
+                                    onclick="closeWorkflowDetail()">Back to List</button>
+                                <button id="deleteWfBtn" type="button" class="remove-btn"
+                                    style="width:auto; display:none; margin-left:10px;"
+                                    onclick="deleteWorkflow()">Delete WF</button>
+                            </div>
+                        </div>
+                        <hr>
+
+                        <!-- Nodes Section -->
+                        <p class="section-label">Nodes</p>
+                        <div id="nodesListContainer"></div>
+
+                        <!-- Edges Section -->
+                        <p class="section-label">Connections (Edges)</p>
+                        <div id="edgesListContainer"></div>
+
+                        <!-- Add Node Form -->
+                        <div id="addNodeContainer"
+                            style="display:none; margin-top:30px; border-top: 2px dashed #eee; padding-top:20px;">
+                            <h4>Add Node</h4>
+                            <form id="addNodeForm" style="background:#f9f9f9; padding:20px; border-radius:5px;">
+                                <div style="display:flex; gap:15px; margin-bottom:15px;">
+                                    <div style="flex:1;">
+                                        <label>Title:</label>
+                                        <input type="text" id="newNodeTitle" class="edit-input" required>
+                                    </div>
+                                    <div style="flex:1;">
+                                        <label>Type:</label>
+                                        <select id="newNodeType" class="edit-input">
+                                            <option value="action">Action</option>
+                                            <option value="decision">Decision</option>
+                                            <option value="note">Note</option>
+                                            <option value="end">End</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <label>Description:</label>
+                                <textarea id="newNodeDesc" class="edit-input" style="height:60px;"></textarea>
+                                <div style="display:flex; gap:15px; margin-bottom:15px;">
+                                    <div style="flex:1;">
+                                        <label>Linked Article:</label>
+                                        <select id="newNodeArticle" class="edit-input">
+                                            <option value="">None</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" class="save-btn">Add Node</button>
+                            </form>
+
+                            <h4 style="margin-top:25px;">Connect Nodes (Add Edge)</h4>
+                            <form id="addEdgeForm" style="background:#f9f9f9; padding:20px; border-radius:5px;">
+                                <div style="display:flex; gap:15px; margin-bottom:15px;">
+                                    <div style="flex:1;">
+                                        <label>From Node:</label>
+                                        <select id="edgeFromNode" class="edit-input" required>
+                                            <option value="">Select...</option>
+                                        </select>
+                                    </div>
+                                    <div style="flex:1;">
+                                        <label>To Node:</label>
+                                        <select id="edgeToNode" class="edit-input" required>
+                                            <option value="">Select...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <label>Condition (for decision branching):</label>
+                                <input type="text" id="edgeCondition" class="edit-input"
+                                    placeholder="e.g. Yes, No, Approved">
+                                <button type="submit" class="save-btn">Connect</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
     <script>
         // Check for token on load
@@ -528,7 +726,7 @@
 
         async function loadUserInfo() {
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-            
+
             if (!token) {
                 window.location.href = "login.html";
                 return;
@@ -544,7 +742,7 @@
 
                 if (res.ok) {
                     const data = await res.json();
-                    
+
                     // Display labels
                     document.getElementById("welcomeMsg").innerText = `Welcome, ${data.first_name || 'User'}!`;
                     document.getElementById("userFirstName").innerText = data.first_name || "N/A";
@@ -554,7 +752,7 @@
                     document.getElementById("userRole").innerText = data.role;
                     document.getElementById("userJobTitle").innerText = data.job_title || "N/A";
                     document.getElementById("userDepartment").innerText = data.department || "N/A";
-                    
+
                     if (data.profile_picture) {
                         document.getElementById("displayImg").src = `http://localhost:8080${data.profile_picture}`;
                     }
@@ -595,18 +793,18 @@
         });
 
         // Save Changes
-        document.getElementById("editForm").addEventListener("submit", async function(e) {
+        document.getElementById("editForm").addEventListener("submit", async function (e) {
             e.preventDefault();
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
             const saveBtn = e.target.querySelector(".save-btn");
-            
+
             const formData = new FormData();
             formData.append("first_name", document.getElementById("editFirstName").value);
             formData.append("last_name", document.getElementById("editLastName").value);
             formData.append("username", document.getElementById("editUsername").value);
             formData.append("job_title", document.getElementById("editJobTitle").value);
             formData.append("department", document.getElementById("editDepartment").value);
-            
+
             const fileInput = document.getElementById("editProfilePic");
             if (fileInput.files[0]) {
                 formData.append("profile_picture", fileInput.files[0]);
@@ -643,10 +841,10 @@
         });
 
         // Admin functionality
-        document.getElementById("fetchAdminDataBtn")?.addEventListener("click", async function() {
+        document.getElementById("fetchAdminDataBtn")?.addEventListener("click", async function () {
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
             const resultDiv = document.getElementById("adminResult");
-            
+
             resultDiv.innerText = "Fetching...";
             resultDiv.style.color = "#333";
 
@@ -683,7 +881,7 @@
         // ==========================================
         // WORKSPACE MANAGEMENT LOGIC
         // ==========================================
-        
+
         let currentWorkspaceId = null;
         let currentUserRole = null;
 
@@ -693,11 +891,11 @@
                 const res = await fetch("http://localhost:8080/api/workspaces", {
                     headers: { "Authorization": `Bearer ${token}` }
                 });
-                
+
                 if (res.ok) {
                     const workspaces = await res.json();
                     const container = document.getElementById("workspacesContainer");
-                    
+
                     if (workspaces.length === 0) {
                         container.innerHTML = "<p>You don't belong to any workspaces yet.</p>";
                         return;
@@ -727,9 +925,9 @@
             try {
                 const res = await fetch("http://localhost:8080/api/workspaces", {
                     method: "POST",
-                    headers: { 
+                    headers: {
                         "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}` 
+                        "Authorization": `Bearer ${token}`
                     },
                     body: JSON.stringify({ name, description })
                 });
@@ -750,10 +948,10 @@
         async function manageWorkspace(id, role, name) {
             currentWorkspaceId = id;
             currentUserRole = role;
-            
+
             document.getElementById("managerWsName").innerText = name;
             document.getElementById("managerWsRole").innerText = `Your Role: ${role}`;
-            
+
             document.getElementById("workspacesListView").style.display = "none";
             document.getElementById("workspaceManagerView").style.display = "block";
 
@@ -763,14 +961,23 @@
             if (role === 'Owner' || role === 'Admin') {
                 addForm.style.display = "flex";
                 createArtBtn.style.display = "block";
+                document.getElementById("createWorkflowBtn").style.display = "block";
+                document.getElementById("deleteWfBtn").style.display = "inline-block";
             } else if (role === 'Editor') {
                 addForm.style.display = "none";
                 createArtBtn.style.display = "block";
+                document.getElementById("createWorkflowBtn").style.display = "block";
+                document.getElementById("deleteWfBtn").style.display = "none";
             } else {
                 addForm.style.display = "none";
                 createArtBtn.style.display = "none";
+                document.getElementById("createWorkflowBtn").style.display = "none";
+                document.getElementById("deleteWfBtn").style.display = "none";
             }
-            
+
+            // Node/Edge controls for Editor+
+            document.getElementById("addNodeContainer").style.display = (role === 'Viewer') ? 'none' : 'block';
+
             // Standard reset tabs
             switchWsTab('members');
             await loadMembers();
@@ -786,21 +993,21 @@
         async function loadMembers() {
             if (!currentWorkspaceId) return;
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-            
+
             try {
                 const res = await fetch(`http://localhost:8080/api/workspaces/${currentWorkspaceId}/members`, {
                     headers: { "Authorization": `Bearer ${token}` }
                 });
-                
+
                 if (res.ok) {
                     const members = await res.json();
                     const tbody = document.getElementById("membersTableBody");
-                    
+
                     tbody.innerHTML = members.map(m => {
                         // Logic to determine if current user can edit this member
-                        const canEdit = (currentUserRole === 'Owner' && m.role !== 'Owner') || 
-                                      (currentUserRole === 'Admin' && m.role !== 'Owner' && m.role !== 'Admin');
-                        
+                        const canEdit = (currentUserRole === 'Owner' && m.role !== 'Owner') ||
+                            (currentUserRole === 'Admin' && m.role !== 'Owner' && m.role !== 'Admin');
+
                         let actionHtml = '';
                         if (canEdit || currentUserRole === 'Owner') {
                             actionHtml = `
@@ -841,7 +1048,7 @@
         document.getElementById("addMemberForm").addEventListener("submit", async (e) => {
             e.preventDefault();
             if (!currentWorkspaceId) return;
-            
+
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
             const email = document.getElementById("newMemberEmail").value;
             const role = document.getElementById("newMemberRole").value;
@@ -849,9 +1056,9 @@
             try {
                 const res = await fetch(`http://localhost:8080/api/workspaces/${currentWorkspaceId}/members`, {
                     method: "POST",
-                    headers: { 
+                    headers: {
                         "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}` 
+                        "Authorization": `Bearer ${token}`
                     },
                     body: JSON.stringify({ user_email: email, role })
                 });
@@ -873,9 +1080,9 @@
             try {
                 const res = await fetch(`http://localhost:8080/api/workspaces/${currentWorkspaceId}/members/${userId}`, {
                     method: "PUT",
-                    headers: { 
+                    headers: {
                         "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}` 
+                        "Authorization": `Bearer ${token}`
                     },
                     body: JSON.stringify({ role: newRole })
                 });
@@ -895,7 +1102,7 @@
 
         async function removeMember(userId) {
             if (!confirm("Are you sure you want to remove this member?")) return;
-            
+
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
             try {
                 const res = await fetch(`http://localhost:8080/api/workspaces/${currentWorkspaceId}/members/${userId}`, {
@@ -917,36 +1124,40 @@
         // ==========================================
         // KNOWLEDGE ARTICLES LOGIC & TABS
         // ==========================================
-        
+
         function switchWsTab(tabName) {
             // Update buttons
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelector(`.tab-btn[onclick="switchWsTab('${tabName}')"]`).classList.add('active');
-            
+
             // Update content
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             document.getElementById(`tab-${tabName}`).classList.add('active');
-            
+
             if (tabName === 'articles') {
                 loadArticles();
                 closeArticleEditor(); // Reset view
+            }
+            if (tabName === 'workflows') {
+                loadWorkflows();
+                closeWorkflowDetail();
             }
         }
 
         async function loadArticles() {
             if (!currentWorkspaceId) return;
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-            
+
             try {
                 const res = await fetch(`http://localhost:8080/api/workspaces/${currentWorkspaceId}/articles`, {
                     headers: { "Authorization": `Bearer ${token}` }
                 });
-                
+
                 const container = document.getElementById("articlesListContainer");
-                
+
                 if (res.ok) {
                     const articles = await res.json();
-                    
+
                     if (articles.length === 0) {
                         container.innerHTML = `<p style="color:#666;">No articles found in this workspace.</p>`;
                         return;
@@ -971,12 +1182,12 @@
             document.getElementById("articlesListView").style.display = "none";
             document.getElementById("articleEditorView").style.display = "block";
             document.getElementById("markdownPreviewBox").style.display = "none";
-            
+
             document.getElementById("editArticleId").value = "";
             document.getElementById("editArticleTitle").value = "";
             document.getElementById("editArticleTags").value = "";
             document.getElementById("editArticleContent").value = "";
-            
+
             const form = document.getElementById("articleForm");
             const readMode = document.getElementById("articleReadMode");
 
@@ -992,14 +1203,14 @@
                 form.style.display = "none"; // start in read mode
                 readMode.style.display = "block";
                 document.getElementById("editArticleId").value = articleId;
-                
+
                 // Fetch full article
                 const token = localStorage.getItem("token") || sessionStorage.getItem("token");
                 try {
                     const res = await fetch(`http://localhost:8080/api/workspaces/${currentWorkspaceId}/articles/${articleId}`, {
                         headers: { "Authorization": `Bearer ${token}` }
                     });
-                    
+
                     if (res.ok) {
                         const data = await res.json();
                         // Populate Read Mode
@@ -1007,16 +1218,16 @@
                         document.getElementById("readArticleTags").innerText = data.tags ? data.tags.map(t => `#${t}`).join(' ') : "";
                         document.getElementById("readArticleContent").innerHTML = marked.parse(data.content);
                         document.getElementById("readArticleAuthor").innerText = `${data.editor_first_name} ${data.editor_last_name || ''}`;
-                        
+
                         // Populate Edit Mode (in case they toggle)
                         document.getElementById("editArticleTitle").value = data.title;
                         document.getElementById("editArticleContent").value = data.content;
                         document.getElementById("editArticleTags").parentElement.style.display = "none"; // Hide tags edit for now (Not required in prompt)
-                        
+
                         // Role Based Actions
                         const actions = document.getElementById("readModeActions");
                         const archBtn = document.querySelector(".remove-btn[onclick='archiveArticle()']");
-                        
+
                         if (currentUserRole === 'Owner' || currentUserRole === 'Admin') {
                             actions.style.display = "block";
                             archBtn.style.display = "inline-block";
@@ -1033,7 +1244,7 @@
                 }
             }
         }
-        
+
         function toggleArticleEditMode(isEditing) {
             document.getElementById("articleForm").style.display = isEditing ? "block" : "none";
             document.getElementById("articleReadMode").style.display = isEditing ? "none" : "block";
@@ -1043,11 +1254,11 @@
         function closeArticleEditor() {
             document.getElementById("articleEditorView").style.display = "none";
             document.getElementById("articlesListView").style.display = "block";
-            
+
             // Reload list to reflect changes
             loadArticles();
         }
-        
+
         function previewMarkdown() {
             const content = document.getElementById("editArticleContent").value;
             const previewBox = document.getElementById("markdownPreviewBox");
@@ -1062,7 +1273,7 @@
         document.getElementById("articleForm").addEventListener("submit", async (e) => {
             e.preventDefault();
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-            
+
             const articleId = document.getElementById("editArticleId").value;
             const title = document.getElementById("editArticleTitle").value;
             const content = document.getElementById("editArticleContent").value;
@@ -1076,9 +1287,9 @@
             try {
                 const res = await fetch(url, {
                     method: method,
-                    headers: { 
+                    headers: {
                         "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}` 
+                        "Authorization": `Bearer ${token}`
                     },
                     body: JSON.stringify({ title, content, tags })
                 });
@@ -1124,6 +1335,271 @@
             } catch (err) {
                 console.error("Error archiving article", err);
             }
+        }
+
+        // ==========================================
+        // VISUAL WORKFLOW ENGINE LOGIC (Graph-Based)
+        // ==========================================
+
+        let currentWorkflowId = null;
+        let currentGraphNodes = []; // cache for dropdowns
+
+        async function loadWorkflows() {
+            if (!currentWorkspaceId) return;
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+            try {
+                const res = await fetch(`http://localhost:8080/api/workspaces/${currentWorkspaceId}/workflows`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                const container = document.getElementById("workflowsListContainer");
+                if (res.ok) {
+                    const workflows = await res.json();
+                    if (workflows.length === 0) {
+                        container.innerHTML = `<p style="color:#666;">No workflows created yet.</p>`;
+                        return;
+                    }
+                    container.innerHTML = workflows.map(wf => `
+                        <div class="article-card" onclick="openWorkflow(${wf.id})">
+                            <h4>${wf.title}</h4>
+                            <p class="article-meta">${wf.description || 'No description'}</p>
+                            <p class="article-meta">Created by: ${wf.first_name} ${wf.last_name || ''}</p>
+                        </div>
+                    `).join('');
+                }
+            } catch (err) {
+                console.error("Error loading workflows", err);
+            }
+        }
+
+        function showCreateWorkflowForm() {
+            document.getElementById("createWorkflowFormUI").style.display = "flex";
+        }
+        function hideCreateWorkflowForm() {
+            document.getElementById("createWorkflowFormUI").style.display = "none";
+        }
+
+        document.getElementById("createWorkflowFormUI").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+            const title = document.getElementById("newWfTitle").value;
+            const description = document.getElementById("newWfDesc").value;
+
+            try {
+                const res = await fetch(`http://localhost:8080/api/workspaces/${currentWorkspaceId}/workflows`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ title, description })
+                });
+
+                if (res.ok) {
+                    document.getElementById("newWfTitle").value = '';
+                    document.getElementById("newWfDesc").value = '';
+                    hideCreateWorkflowForm();
+                    await loadWorkflows();
+                } else {
+                    const data = await res.json();
+                    alert(data.message);
+                }
+            } catch (err) {
+                console.error("Error creating workflow", err);
+            }
+        });
+
+        async function openWorkflow(id) {
+            currentWorkflowId = id;
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+
+            try {
+                const res = await fetch(`http://localhost:8080/api/workspaces/${currentWorkspaceId}/workflows/${id}/graph`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById("wfListView").style.display = "none";
+                    document.getElementById("wfDetailView").style.display = "block";
+
+                    document.getElementById("viewWfTitle").innerText = data.workflow.title;
+                    document.getElementById("viewWfDesc").innerText = data.workflow.description || "";
+
+                    currentGraphNodes = data.nodes;
+                    renderNodes(data.nodes);
+                    renderEdges(data.edges, data.nodes);
+                    populateNodeDropdowns(data.nodes);
+                    populateArticleDropdown();
+                }
+            } catch (err) {
+                console.error("Error fetching workflow graph", err);
+            }
+        }
+
+        function renderNodes(nodes) {
+            const container = document.getElementById("nodesListContainer");
+            if (!nodes || nodes.length === 0) {
+                container.innerHTML = `<p style="color:#888;">No nodes in this workflow.</p>`;
+                return;
+            }
+
+            container.innerHTML = nodes.map(n => `
+                <div class="node-item node-${n.type}">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div>
+                            <strong>${n.title}</strong>
+                            <span class="node-type-badge">${n.type}</span>
+                        </div>
+                        ${(currentUserRole !== 'Viewer' && n.type !== 'start') ? `<button class="remove-btn" style="width:auto; margin:0;" onclick="deleteNode(${n.id})">Remove</button>` : ''}
+                    </div>
+                    ${n.description ? `<p style="font-size:13px; margin:6px 0 0 0; color:#555;">${n.description}</p>` : ''}
+                    ${n.linked_article_id ? `<div style="font-size:12px; color:#3498db; margin-top:5px;">📖 Linked: <strong>${n.article_title}</strong></div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function renderEdges(edges, nodes) {
+            const container = document.getElementById("edgesListContainer");
+            if (!edges || edges.length === 0) {
+                container.innerHTML = `<p style="color:#888;">No connections yet.</p>`;
+                return;
+            }
+
+            const nodeMap = {};
+            nodes.forEach(n => nodeMap[n.id] = n.title);
+
+            container.innerHTML = edges.map(e => `
+                <div class="edge-item">
+                    <span>${nodeMap[e.from_node_id] || '?'} <span class="edge-arrow">→</span> ${nodeMap[e.to_node_id] || '?'}${e.condition ? ` <em style="color:#f39c12;">[${e.condition}]</em>` : ''}</span>
+                    ${(currentUserRole !== 'Viewer') ? `<button class="remove-btn" style="width:auto; margin:0;" onclick="deleteEdge(${e.id})">✕</button>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function populateNodeDropdowns(nodes) {
+            const fromSelect = document.getElementById("edgeFromNode");
+            const toSelect = document.getElementById("edgeToNode");
+            const options = '<option value="">Select...</option>' +
+                nodes.map(n => `<option value="${n.id}">${n.title} (${n.type})</option>`).join('');
+            fromSelect.innerHTML = options;
+            toSelect.innerHTML = options;
+        }
+
+        async function populateArticleDropdown() {
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+            const select = document.getElementById("newNodeArticle");
+            try {
+                const res = await fetch(`http://localhost:8080/api/workspaces/${currentWorkspaceId}/articles`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const articles = await res.json();
+                    select.innerHTML = '<option value="">None</option>' +
+                        articles.map(a => `<option value="${a.id}">${a.title}</option>`).join('');
+                }
+            } catch (err) { }
+        }
+
+        // Add Node
+        document.getElementById("addNodeForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            if (!currentWorkflowId) return;
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+
+            const payload = {
+                title: document.getElementById("newNodeTitle").value,
+                description: document.getElementById("newNodeDesc").value,
+                type: document.getElementById("newNodeType").value,
+                linked_article_id: document.getElementById("newNodeArticle").value || null,
+                position_x: Math.random() * 400 + 50,
+                position_y: (currentGraphNodes.length) * 100 + 50
+            };
+
+            try {
+                const res = await fetch(`http://localhost:8080/api/workspaces/${currentWorkspaceId}/workflows/${currentWorkflowId}/nodes`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    document.getElementById("newNodeTitle").value = '';
+                    document.getElementById("newNodeDesc").value = '';
+                    document.getElementById("newNodeArticle").value = '';
+                    await openWorkflow(currentWorkflowId);
+                } else {
+                    const data = await res.json();
+                    alert(data.message);
+                }
+            } catch (err) { console.error(err); }
+        });
+
+        // Add Edge
+        document.getElementById("addEdgeForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            if (!currentWorkflowId) return;
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+
+            const from_node_id = parseInt(document.getElementById("edgeFromNode").value);
+            const to_node_id = parseInt(document.getElementById("edgeToNode").value);
+            const condition = document.getElementById("edgeCondition").value || null;
+
+            if (!from_node_id || !to_node_id) { alert("Select both nodes."); return; }
+
+            try {
+                const res = await fetch(`http://localhost:8080/api/workspaces/${currentWorkspaceId}/workflows/${currentWorkflowId}/edges`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                    body: JSON.stringify({ from_node_id, to_node_id, condition })
+                });
+                if (res.ok) {
+                    document.getElementById("edgeCondition").value = '';
+                    await openWorkflow(currentWorkflowId);
+                } else {
+                    const data = await res.json();
+                    alert(data.message);
+                }
+            } catch (err) { console.error(err); }
+        });
+
+        async function deleteNode(nodeId) {
+            if (!confirm("Delete this node? All connected edges will also be removed.")) return;
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+            try {
+                await fetch(`http://localhost:8080/api/workspaces/${currentWorkspaceId}/workflows/${currentWorkflowId}/nodes/${nodeId}`, {
+                    method: "DELETE", headers: { "Authorization": `Bearer ${token}` }
+                });
+                await openWorkflow(currentWorkflowId);
+            } catch (err) { }
+        }
+
+        async function deleteEdge(edgeId) {
+            if (!confirm("Remove this connection?")) return;
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+            try {
+                await fetch(`http://localhost:8080/api/workspaces/${currentWorkspaceId}/workflows/${currentWorkflowId}/edges/${edgeId}`, {
+                    method: "DELETE", headers: { "Authorization": `Bearer ${token}` }
+                });
+                await openWorkflow(currentWorkflowId);
+            } catch (err) { }
+        }
+
+        async function deleteWorkflow() {
+            if (!confirm("Delete this ENTIRE workflow? This cannot be undone.")) return;
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+            try {
+                const res = await fetch(`http://localhost:8080/api/workspaces/${currentWorkspaceId}/workflows/${currentWorkflowId}`, {
+                    method: "DELETE", headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (res.ok) closeWorkflowDetail();
+            } catch (err) { }
+        }
+
+        function closeWorkflowDetail() {
+            document.getElementById("wfDetailView").style.display = "none";
+            document.getElementById("wfListView").style.display = "block";
+            currentWorkflowId = null;
+            currentGraphNodes = [];
+            loadWorkflows();
         }
 
     </script>
