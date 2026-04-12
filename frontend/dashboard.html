@@ -56,6 +56,66 @@
             border: 1px solid #ddd;
         }
 
+        .profile-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 20px;
+            border: 3px solid #2b5876;
+        }
+
+        .info-row {
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .info-row strong {
+            color: #555;
+        }
+
+        #editForm {
+            display: none;
+            text-align: left;
+            margin-top: 20px;
+        }
+
+        .edit-input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0 15px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .save-btn {
+            background: #27ae60;
+        }
+
+        .save-btn:hover {
+            background: #219150;
+        }
+
+        .cancel-btn {
+            background: #95a5a6;
+        }
+
+        .cancel-btn:hover {
+            background: #7f8c8d;
+        }
+
+        .edit-mode-btn {
+            background: #2b5876;
+            margin-top: 10px;
+        }
+
         #adminPanel {
             display: none; /* Hidden by default */
             margin-top: 20px;
@@ -97,13 +157,45 @@
 <body>
 
     <div class="dashboard-card">
-        <h2>Welcome to the Dashboard!</h2>
-        <p>You have successfully logged in.</p>
+        <h2 id="welcomeMsg">Welcome to the Dashboard!</h2>
+        
+        <img id="displayImg" src="https://via.placeholder.com/100" alt="Profile Picture" class="profile-img">
 
         <div id="userInfo">
-            <p><strong>Email:</strong> <span id="userEmail">Loading...</span></p>
-            <p><strong>Role:</strong> <span id="userRole">Loading...</span></p>
+            <div class="info-row"><strong>First Name:</strong> <span id="userFirstName"></span></div>
+            <div class="info-row"><strong>Last Name:</strong> <span id="userLastName"></span></div>
+            <div class="info-row"><strong>Username:</strong> <span id="userUsername"></span></div>
+            <div class="info-row"><strong>Email:</strong> <span id="userEmail"></span></div>
+            <div class="info-row"><strong>Role:</strong> <span id="userRole"></span></div>
+            <div class="info-row"><strong>Job Title:</strong> <span id="userJobTitle"></span></div>
+            <div class="info-row"><strong>Department:</strong> <span id="userDepartment"></span></div>
+            <button id="editBtn" class="edit-mode-btn">Edit Profile</button>
         </div>
+
+        <form id="editForm">
+            <label>First Name (required):</label>
+            <input type="text" id="editFirstName" class="edit-input" required>
+            
+            <label>Last Name:</label>
+            <input type="text" id="editLastName" class="edit-input">
+            
+            <label>Username (required):</label>
+            <input type="text" id="editUsername" class="edit-input" required>
+            
+            <label>Job Title:</label>
+            <input type="text" id="editJobTitle" class="edit-input">
+            
+            <label>Department:</label>
+            <input type="text" id="editDepartment" class="edit-input">
+            
+            <label>Profile Picture:</label>
+            <input type="file" id="editProfilePic" class="edit-input" accept="image/*">
+
+            <div class="btn-group">
+                <button type="submit" class="save-btn">Save Changes</button>
+                <button type="button" id="cancelBtn" class="cancel-btn">Cancel</button>
+            </div>
+        </form>
 
         <div id="adminPanel">
             <h3>Admin Panel 🛡️</h3>
@@ -117,17 +209,17 @@
 
     <script>
         // Check for token on load
-        window.onload = async function() {
+        window.onload = loadUserInfo;
+
+        async function loadUserInfo() {
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
             
             if (!token) {
-                // Not logged in, redirect
                 window.location.href = "login.html";
                 return;
             }
 
             try {
-                // Verify token with backend
                 const res = await fetch("http://localhost:8080/api/me", {
                     method: "GET",
                     headers: {
@@ -137,25 +229,99 @@
 
                 if (res.ok) {
                     const data = await res.json();
+                    
+                    // Display labels
+                    document.getElementById("welcomeMsg").innerText = `Welcome, ${data.first_name || 'User'}!`;
+                    document.getElementById("userFirstName").innerText = data.first_name || "N/A";
+                    document.getElementById("userLastName").innerText = data.last_name || "N/A";
+                    document.getElementById("userUsername").innerText = data.username || "N/A";
                     document.getElementById("userEmail").innerText = data.email;
                     document.getElementById("userRole").innerText = data.role;
+                    document.getElementById("userJobTitle").innerText = data.job_title || "N/A";
+                    document.getElementById("userDepartment").innerText = data.department || "N/A";
+                    
+                    if (data.profile_picture) {
+                        document.getElementById("displayImg").src = `http://localhost:8080${data.profile_picture}`;
+                    }
 
-                    // RBAC Logic: If user is an admin, unhide the Admin Panel
+                    // Populate edit form
+                    document.getElementById("editFirstName").value = data.first_name || "";
+                    document.getElementById("editLastName").value = data.last_name || "";
+                    document.getElementById("editUsername").value = data.username || "";
+                    document.getElementById("editJobTitle").value = data.job_title || "";
+                    document.getElementById("editDepartment").value = data.department || "";
+
                     if (data.role === "admin") {
                         document.getElementById("adminPanel").style.display = "block";
                     }
                 } else {
-                    // Token invalid or expired
                     localStorage.removeItem("token");
                     sessionStorage.removeItem("token");
                     window.location.href = "login.html";
                 }
             } catch (error) {
                 console.error("Error verifying token:", error);
-                document.getElementById("userEmail").innerText = "Error loading info";
-                document.getElementById("userRole").innerText = "Error loading info";
             }
-        };
+        }
+
+        // Toggle Edit Mode
+        document.getElementById("editBtn").addEventListener("click", () => {
+            document.getElementById("userInfo").style.display = "none";
+            document.getElementById("editForm").style.display = "block";
+        });
+
+        document.getElementById("cancelBtn").addEventListener("click", () => {
+            document.getElementById("userInfo").style.display = "block";
+            document.getElementById("editForm").style.display = "none";
+        });
+
+        // Save Changes
+        document.getElementById("editForm").addEventListener("submit", async function(e) {
+            e.preventDefault();
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+            const saveBtn = e.target.querySelector(".save-btn");
+            
+            const formData = new FormData();
+            formData.append("first_name", document.getElementById("editFirstName").value);
+            formData.append("last_name", document.getElementById("editLastName").value);
+            formData.append("username", document.getElementById("editUsername").value);
+            formData.append("job_title", document.getElementById("editJobTitle").value);
+            formData.append("department", document.getElementById("editDepartment").value);
+            
+            const fileInput = document.getElementById("editProfilePic");
+            if (fileInput.files[0]) {
+                formData.append("profile_picture", fileInput.files[0]);
+            }
+
+            saveBtn.disabled = true;
+            saveBtn.innerText = "Saving...";
+
+            try {
+                const res = await fetch("http://localhost:8080/api/me", {
+                    method: "PUT",
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                if (res.ok) {
+                    alert("Profile updated successfully!");
+                    await loadUserInfo();
+                    document.getElementById("userInfo").style.display = "block";
+                    document.getElementById("editForm").style.display = "none";
+                } else {
+                    const err = await res.json();
+                    alert("Update failed: " + err.message);
+                }
+            } catch (error) {
+                console.error("Update error:", error);
+                alert("Error connecting to server");
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerText = "Save Changes";
+            }
+        });
 
         // Admin functionality
         document.getElementById("fetchAdminDataBtn")?.addEventListener("click", async function() {

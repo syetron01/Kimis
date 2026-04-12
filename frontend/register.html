@@ -81,9 +81,20 @@
         <h2>Register</h2>
 
         <form id="registerForm">
-            <input type="email" id="email" placeholder="Email" required>
-            <input type="password" id="password" placeholder="Password" required>
-            <button type="submit">Create Account</button>
+            <input type="text" id="first_name" placeholder="First Name (required)" required>
+            <input type="text" id="last_name" placeholder="Last Name">
+            <input type="text" id="username" placeholder="Username / Display Name (required)" required>
+            <input type="email" id="email" placeholder="Email Address (required)" required>
+            
+            <input type="password" id="password" placeholder="Password (required)" required minlength="8">
+            <input type="password" id="confirm_password" placeholder="Confirm Password (required)" required minlength="8">
+            
+            <input type="text" id="job_title" placeholder="Job Title / Position (optional)">
+            <input type="text" id="department" placeholder="Team / Department (optional)">
+            <label for="profile_picture" style="display: block; text-align: left; margin: 10px 0 5px 0; font-size: 14px;">Profile Picture (optional, max 5MB):</label>
+            <input type="file" id="profile_picture" accept="image/*">
+
+            <button id="submitBtn" type="submit">Create Account</button>
         </form>
 
         <p id="message"></p>
@@ -94,43 +105,77 @@
     </div>
 
     <script>
-
         document.getElementById("registerForm").addEventListener("submit", async function (e) {
             e.preventDefault();
 
-            const email = document.getElementById("email").value;
+            const messageEl = document.getElementById("message");
+            const submitBtn = document.getElementById("submitBtn");
+
+            const first_name = document.getElementById("first_name").value.trim();
+            const last_name = document.getElementById("last_name").value.trim();
+            const username = document.getElementById("username").value.trim();
+            const email = document.getElementById("email").value.trim();
             const password = document.getElementById("password").value;
+            const confirm_password = document.getElementById("confirm_password").value;
+            const job_title = document.getElementById("job_title").value.trim();
+            const department = document.getElementById("department").value.trim();
+            const profile_picture = document.getElementById("profile_picture").files[0];
+
+            if (password.length < 8) {
+                messageEl.style.color = "red";
+                messageEl.innerText = "Password must be at least 8 characters long.";
+                return;
+            }
+
+            if (password !== confirm_password) {
+                messageEl.style.color = "red";
+                messageEl.innerText = "Passwords do not match.";
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('email', email);
+            formData.append('password', password);
+            formData.append('first_name', first_name);
+            formData.append('last_name', last_name);
+            formData.append('username', username);
+            formData.append('job_title', job_title);
+            formData.append('department', department);
+            if (profile_picture) {
+                formData.append('profile_picture', profile_picture);
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Creating...";
+            messageEl.innerText = "";
 
             try {
-
                 const res = await fetch("http://localhost:8080/api/register", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ email, password })
+                    body: formData
                 });
 
                 const data = await res.json();
 
                 if (res.ok) {
-                    document.getElementById("message").style.color = "green";
-                    document.getElementById("message").innerText = data.message + " Redirecting to login...";
+                    messageEl.style.color = "green";
+                    messageEl.innerText = data.message + " Redirecting to login...";
                     setTimeout(() => {
                         window.location.href = "login.html";
                     }, 2000);
                 } else {
-                    document.getElementById("message").style.color = "red";
-                    document.getElementById("message").innerText = data.message;
+                    messageEl.style.color = "red";
+                    messageEl.innerText = data.message;
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Create Account";
                 }
-
             } catch (error) {
-                document.getElementById("message").style.color = "red";
-                document.getElementById("message").innerText = "Server not reachable.";
+                messageEl.style.color = "red";
+                messageEl.innerText = "Server not reachable.";
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Create Account";
             }
-
         });
-
     </script>
 
 </body>
