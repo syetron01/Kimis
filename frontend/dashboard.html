@@ -9,24 +9,46 @@
         body {
             font-family: Arial, sans-serif;
             background: linear-gradient(135deg, #2b5876, #4e4376);
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start; /* Changed from center to accommodate larger content */
+            padding: 40px 20px;
             margin: 0;
             color: #333;
+            box-sizing: border-box;
+        }
+
+        .dashboard-container {
+            display: flex;
+            gap: 20px;
+            max-width: 1000px;
+            width: 100%;
+            align-items: flex-start;
         }
 
         .dashboard-card {
             background: white;
             padding: 40px;
             border-radius: 10px;
-            width: 400px;
+            width: 350px;
+            flex-shrink: 0; /* Left side panel doesn't shrink */
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
             text-align: center;
         }
+        
+        .workspaces-card {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            flex-grow: 1; /* Right panel takes remaining space */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            text-align: left;
+            display: none; /* Shown via JS if logged in */
+        }
 
-        .dashboard-card h2 {
+        h2 {
+            margin-top: 0;
             margin-bottom: 20px;
             color: #2b5876;
         }
@@ -150,12 +172,109 @@
             border: 1px solid #ccc;
             min-height: 20px;
         }
+
+        /* Workspace specific styles */
+        .workspace-item {
+            background: #f4f6f8;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .workspace-info h4 {
+            margin: 0 0 5px 0;
+            color: #2b5876;
+        }
+
+        .workspace-info p {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .manage-btn {
+            background: #3498db;
+            width: auto;
+            padding: 8px 15px;
+            margin-top: 0;
+        }
+
+        .manage-btn:hover { background: #2980b9; }
+
+        .form-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .form-group input, .form-group select {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .form-group button {
+            width: auto;
+            margin-top: 0;
+            background: #2ecc71;
+        }
+        .form-group button:hover { background: #27ae60; }
+
+        .members-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .members-table th, .members-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .members-table th { background: #e8f4f8; }
+
+        .action-select {
+            padding: 4px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        .remove-btn {
+            background: #e74c3c;
+            width: auto;
+            padding: 4px 8px;
+            margin-top: 0;
+            font-size: 12px;
+        }
+        
+        .manager-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .back-btn {
+            background: #95a5a6;
+            width: auto;
+            margin: 0;
+            padding: 5px 10px;
+        }
     </style>
 
 </head>
 
 <body>
 
+<div class="dashboard-container">
     <div class="dashboard-card">
         <h2 id="welcomeMsg">Welcome to the Dashboard!</h2>
         
@@ -207,6 +326,61 @@
         <button id="logoutBtn">Logout</button>
     </div>
 
+    <!-- Right Side: Workspaces -->
+    <div class="workspaces-card" id="workspacesSection">
+        <!-- Main Workspaces List View -->
+        <div id="workspacesListView">
+            <h2>My Workspaces</h2>
+            
+            <form id="createWorkspaceForm" class="form-group">
+                <input type="text" id="newWsName" placeholder="Workspace Name" required>
+                <input type="text" id="newWsDesc" placeholder="Description (Optional)">
+                <button type="submit">Create</button>
+            </form>
+
+            <div id="workspacesContainer">
+                <p>Loading workspaces...</p>
+            </div>
+        </div>
+
+        <!-- Single Workspace Manager View -->
+        <div id="workspaceManagerView" style="display: none;">
+            <div class="manager-header">
+                <div>
+                    <h2 id="managerWsName" style="margin-bottom:0;">Workspace</h2>
+                    <span id="managerWsRole" style="color:#7f8c8d;font-size:14px;"></span>
+                </div>
+                <button type="button" id="backToWsListBtn" class="back-btn">Back to List</button>
+            </div>
+
+            <!-- Add Member Form -->
+            <form id="addMemberForm" class="form-group" style="display:none;">
+                <input type="email" id="newMemberEmail" placeholder="User Email" required>
+                <select id="newMemberRole">
+                    <option value="Viewer">Viewer</option>
+                    <option value="Editor">Editor</option>
+                    <option value="Admin">Admin</option>
+                </select>
+                <button type="submit">Add Member</button>
+            </form>
+
+            <table class="members-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="membersTableBody">
+                    <!-- Members will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
     <script>
         // Check for token on load
         window.onload = loadUserInfo;
@@ -254,6 +428,10 @@
                     if (data.role === "admin") {
                         document.getElementById("adminPanel").style.display = "block";
                     }
+
+                    // Load Workspaces after user info is loaded
+                    document.getElementById("workspacesSection").style.display = "block";
+                    await loadWorkspaces();
                 } else {
                     localStorage.removeItem("token");
                     sessionStorage.removeItem("token");
@@ -360,6 +538,233 @@
             sessionStorage.removeItem("token");
             window.location.href = "login.html";
         });
+
+        // ==========================================
+        // WORKSPACE MANAGEMENT LOGIC
+        // ==========================================
+        
+        let currentWorkspaceId = null;
+        let currentUserRole = null;
+
+        async function loadWorkspaces() {
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+            try {
+                const res = await fetch("http://localhost:8080/api/workspaces", {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                
+                if (res.ok) {
+                    const workspaces = await res.json();
+                    const container = document.getElementById("workspacesContainer");
+                    
+                    if (workspaces.length === 0) {
+                        container.innerHTML = "<p>You don't belong to any workspaces yet.</p>";
+                        return;
+                    }
+
+                    container.innerHTML = workspaces.map(ws => `
+                        <div class="workspace-item">
+                            <div class="workspace-info">
+                                <h4>${ws.name} <span style="font-size:12px; font-weight:normal; color:#888;">(${ws.user_role})</span></h4>
+                                <p>${ws.description || 'No description'}</p>
+                            </div>
+                            <button class="manage-btn" onclick="manageWorkspace(${ws.id}, '${ws.user_role}', '${ws.name}')">Manage</button>
+                        </div>
+                    `).join('');
+                }
+            } catch (err) {
+                console.error("Error loading workspaces", err);
+            }
+        }
+
+        document.getElementById("createWorkspaceForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+            const name = document.getElementById("newWsName").value;
+            const description = document.getElementById("newWsDesc").value;
+
+            try {
+                const res = await fetch("http://localhost:8080/api/workspaces", {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}` 
+                    },
+                    body: JSON.stringify({ name, description })
+                });
+
+                if (res.ok) {
+                    document.getElementById("newWsName").value = '';
+                    document.getElementById("newWsDesc").value = '';
+                    await loadWorkspaces();
+                } else {
+                    const data = await res.json();
+                    alert(data.message);
+                }
+            } catch (err) {
+                console.error("Error creating workspace", err);
+            }
+        });
+
+        async function manageWorkspace(id, role, name) {
+            currentWorkspaceId = id;
+            currentUserRole = role;
+            
+            document.getElementById("managerWsName").innerText = name;
+            document.getElementById("managerWsRole").innerText = `Your Role: ${role}`;
+            
+            document.getElementById("workspacesListView").style.display = "none";
+            document.getElementById("workspaceManagerView").style.display = "block";
+
+            // Show add member form only for Admin/Owner
+            const addForm = document.getElementById("addMemberForm");
+            if (role === 'Owner' || role === 'Admin') {
+                addForm.style.display = "flex";
+            } else {
+                addForm.style.display = "none";
+            }
+
+            await loadMembers();
+        }
+
+        document.getElementById("backToWsListBtn").addEventListener("click", () => {
+            document.getElementById("workspaceManagerView").style.display = "none";
+            document.getElementById("workspacesListView").style.display = "block";
+            currentWorkspaceId = null;
+            currentUserRole = null;
+        });
+
+        async function loadMembers() {
+            if (!currentWorkspaceId) return;
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+            
+            try {
+                const res = await fetch(`http://localhost:8080/api/workspaces/${currentWorkspaceId}/members`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                
+                if (res.ok) {
+                    const members = await res.json();
+                    const tbody = document.getElementById("membersTableBody");
+                    
+                    tbody.innerHTML = members.map(m => {
+                        // Logic to determine if current user can edit this member
+                        const canEdit = (currentUserRole === 'Owner' && m.role !== 'Owner') || 
+                                      (currentUserRole === 'Admin' && m.role !== 'Owner' && m.role !== 'Admin');
+                        
+                        let actionHtml = '';
+                        if (canEdit || currentUserRole === 'Owner') {
+                            actionHtml = `
+                                <select class="action-select" onchange="updateMemberRole(${m.id}, this.value)">
+                                    <option value="Viewer" ${m.role === 'Viewer' ? 'selected' : ''}>Viewer</option>
+                                    <option value="Editor" ${m.role === 'Editor' ? 'selected' : ''}>Editor</option>
+                                    <option value="Admin" ${m.role === 'Admin' ? 'selected' : ''}>Admin</option>
+                                    ${currentUserRole === 'Owner' ? `<option value="Owner" ${m.role === 'Owner' ? 'selected' : ''}>Owner</option>` : ''}
+                                </select>
+                                <button class="remove-btn" onclick="removeMember(${m.id})">Remove</button>
+                            `;
+                        } else {
+                            actionHtml = `<span style="color:#999;font-size:12px;">No access</span>`;
+                        }
+
+                        // Protect the last Owner or protect if it's the current user playing around
+                        if (m.role === 'Owner') {
+                            if (currentUserRole !== 'Owner') {
+                                actionHtml = ''; // Hide actions entirely if not owner viewing another owner
+                            }
+                        }
+
+                        return `
+                            <tr>
+                                <td>${m.first_name} ${m.last_name || ''}</td>
+                                <td>${m.email}</td>
+                                <td>${m.role}</td>
+                                <td>${actionHtml}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+            } catch (err) {
+                console.error("Error loading members", err);
+            }
+        }
+
+        document.getElementById("addMemberForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            if (!currentWorkspaceId) return;
+            
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+            const email = document.getElementById("newMemberEmail").value;
+            const role = document.getElementById("newMemberRole").value;
+
+            try {
+                const res = await fetch(`http://localhost:8080/api/workspaces/${currentWorkspaceId}/members`, {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}` 
+                    },
+                    body: JSON.stringify({ user_email: email, role })
+                });
+
+                if (res.ok) {
+                    document.getElementById("newMemberEmail").value = '';
+                    await loadMembers();
+                } else {
+                    const data = await res.json();
+                    alert(data.message);
+                }
+            } catch (err) {
+                console.error("Error adding member", err);
+            }
+        });
+
+        async function updateMemberRole(userId, newRole) {
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+            try {
+                const res = await fetch(`http://localhost:8080/api/workspaces/${currentWorkspaceId}/members/${userId}`, {
+                    method: "PUT",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}` 
+                    },
+                    body: JSON.stringify({ role: newRole })
+                });
+
+                if (res.ok) {
+                    await loadMembers();
+                    // Optional: reload workspaces if they changed their own role
+                } else {
+                    const data = await res.json();
+                    alert(data.message);
+                    await loadMembers(); // Reset UI
+                }
+            } catch (err) {
+                console.error("Error updating role", err);
+            }
+        }
+
+        async function removeMember(userId) {
+            if (!confirm("Are you sure you want to remove this member?")) return;
+            
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+            try {
+                const res = await fetch(`http://localhost:8080/api/workspaces/${currentWorkspaceId}/members/${userId}`, {
+                    method: "DELETE",
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    await loadMembers();
+                } else {
+                    const data = await res.json();
+                    alert(data.message);
+                }
+            } catch (err) {
+                console.error("Error removing member", err);
+            }
+        }
+
     </script>
 
 </body>
