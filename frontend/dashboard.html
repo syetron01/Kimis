@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Kimis Dashboard</title>
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
         body {
@@ -268,6 +270,83 @@
             margin: 0;
             padding: 5px 10px;
         }
+
+        /* Tabs & Articles Styling */
+        .tabs-header {
+            display: flex;
+            border-bottom: 2px solid #ccc;
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            width: auto;
+            margin: 0;
+            background: none;
+            color: #555;
+            padding: 10px 20px;
+            border-radius: 5px 5px 0 0;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+        .tab-btn.active {
+            color: #2b5876;
+            background: #e8f4f8;
+            border-bottom: 3px solid #2b5876;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        
+        .article-card {
+            background: #fdfdfd;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: box-shadow 0.2s;
+        }
+        .article-card:hover {
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .article-card h4 {
+            margin: 0 0 5px 0;
+            color: #2b5876;
+        }
+        .article-meta {
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .article-editor {
+            background: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .article-editor textarea {
+            width: 100%;
+            height: 200px;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-family: inherit;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .markdown-preview {
+            background: #f4f6f8;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            min-height: 100px;
+            margin-bottom: 15px;
+        }
+        .markdown-preview img {
+            max-width: 100%;
+        }
     </style>
 
 </head>
@@ -353,30 +432,92 @@
                 <button type="button" id="backToWsListBtn" class="back-btn">Back to List</button>
             </div>
 
-            <!-- Add Member Form -->
-            <form id="addMemberForm" class="form-group" style="display:none;">
-                <input type="email" id="newMemberEmail" placeholder="User Email" required>
-                <select id="newMemberRole">
-                    <option value="Viewer">Viewer</option>
-                    <option value="Editor">Editor</option>
-                    <option value="Admin">Admin</option>
-                </select>
-                <button type="submit">Add Member</button>
-            </form>
+            <!-- TABS -->
+            <div class="tabs-header">
+                <button type="button" class="tab-btn active" onclick="switchWsTab('members')">Members</button>
+                <button type="button" class="tab-btn" onclick="switchWsTab('articles')">Articles</button>
+            </div>
 
-            <table class="members-table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="membersTableBody">
-                    <!-- Members will be loaded here -->
-                </tbody>
-            </table>
+            <!-- MEMBERS TAB -->
+            <div id="tab-members" class="tab-content active">
+                <form id="addMemberForm" class="form-group" style="display:none;">
+                    <input type="email" id="newMemberEmail" placeholder="User Email" required>
+                    <select id="newMemberRole">
+                        <option value="Viewer">Viewer</option>
+                        <option value="Editor">Editor</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                    <button type="submit">Add Member</button>
+                </form>
+
+                <table class="members-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="membersTableBody">
+                        <!-- Members will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ARTICLES TAB -->
+            <div id="tab-articles" class="tab-content">
+                <div id="articlesListView">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                        <h3 style="margin:0;">Knowledge Base</h3>
+                        <button id="createArticleBtn" class="manage-btn" style="display:none;" onclick="openArticleEditor(null)">+ New Article</button>
+                    </div>
+                    <!-- Articles will be loaded here -->
+                    <div id="articlesListContainer">Loading articles...</div>
+                </div>
+
+                <div id="articleEditorView" class="article-editor" style="display: none;">
+                    <h3 id="editorTitleMode">Create Article</h3>
+                    
+                    <!-- Reading Mode View -->
+                    <div id="articleReadMode" style="display:none; margin-bottom:20px;">
+                        <h2 id="readArticleTitle" style="margin-bottom:5px;"></h2>
+                        <div id="readArticleTags" style="margin-bottom:15px; font-size:12px; color:#3498db; font-weight:bold;"></div>
+                        <div id="readArticleContent" class="markdown-preview"></div>
+                        <p class="article-meta">Last updated by <span id="readArticleAuthor"></span></p>
+                        
+                        <div class="btn-group" id="readModeActions" style="margin-top:20px; display:none;">
+                            <button type="button" class="manage-btn" onclick="toggleArticleEditMode(true)">Edit Content</button>
+                            <button type="button" class="remove-btn" onclick="archiveArticle()">Archive</button>
+                        </div>
+                    </div>
+
+                    <!-- Editing Mode Form -->
+                    <form id="articleForm" style="display:block;">
+                        <input type="hidden" id="editArticleId" value="">
+                        
+                        <label>Title:</label>
+                        <input type="text" id="editArticleTitle" class="edit-input" required>
+                        
+                        <label>Tags (comma separated):</label>
+                        <input type="text" id="editArticleTags" class="edit-input" placeholder="e.g. tech, setup, guide">
+                        
+                        <label>Content (Markdown supported):</label>
+                        <textarea id="editArticleContent" required placeholder="# Title\n\nWrite your content here..."></textarea>
+                        
+                        <div style="text-align:right; font-size:12px; margin-bottom:5px;">
+                            <a href="javascript:void(0)" onclick="previewMarkdown()">Preview Markdown</a>
+                        </div>
+                        <div id="markdownPreviewBox" class="markdown-preview" style="display:none;"></div>
+
+                        <div class="btn-group">
+                            <button type="submit" class="save-btn">Save Article</button>
+                        </div>
+                    </form>
+                    
+                    <button type="button" class="cancel-btn" style="width:auto; margin-top:15px;" onclick="closeArticleEditor()">Back</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -616,14 +757,22 @@
             document.getElementById("workspacesListView").style.display = "none";
             document.getElementById("workspaceManagerView").style.display = "block";
 
-            // Show add member form only for Admin/Owner
+            // Show add member form & Create article button based on role
             const addForm = document.getElementById("addMemberForm");
+            const createArtBtn = document.getElementById("createArticleBtn");
             if (role === 'Owner' || role === 'Admin') {
                 addForm.style.display = "flex";
+                createArtBtn.style.display = "block";
+            } else if (role === 'Editor') {
+                addForm.style.display = "none";
+                createArtBtn.style.display = "block";
             } else {
                 addForm.style.display = "none";
+                createArtBtn.style.display = "none";
             }
-
+            
+            // Standard reset tabs
+            switchWsTab('members');
             await loadMembers();
         }
 
@@ -765,8 +914,219 @@
             }
         }
 
-    </script>
+        // ==========================================
+        // KNOWLEDGE ARTICLES LOGIC & TABS
+        // ==========================================
+        
+        function switchWsTab(tabName) {
+            // Update buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.tab-btn[onclick="switchWsTab('${tabName}')"]`).classList.add('active');
+            
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            
+            if (tabName === 'articles') {
+                loadArticles();
+                closeArticleEditor(); // Reset view
+            }
+        }
 
+        async function loadArticles() {
+            if (!currentWorkspaceId) return;
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+            
+            try {
+                const res = await fetch(`http://localhost:8080/api/workspaces/${currentWorkspaceId}/articles`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                
+                const container = document.getElementById("articlesListContainer");
+                
+                if (res.ok) {
+                    const articles = await res.json();
+                    
+                    if (articles.length === 0) {
+                        container.innerHTML = `<p style="color:#666;">No articles found in this workspace.</p>`;
+                        return;
+                    }
+
+                    container.innerHTML = articles.map(art => `
+                        <div class="article-card" onclick="openArticleEditor(${art.id})">
+                            <h4>${art.title}</h4>
+                            <p class="article-meta">Last updated: ${new Date(art.updated_at).toLocaleString()} by ${art.author_first_name} ${art.author_last_name || ''}</p>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = `<p style="color:red;">Error loading articles.</p>`;
+                }
+            } catch (err) {
+                console.error("Error loading articles", err);
+            }
+        }
+
+        async function openArticleEditor(articleId) {
+            // UI Toggle
+            document.getElementById("articlesListView").style.display = "none";
+            document.getElementById("articleEditorView").style.display = "block";
+            document.getElementById("markdownPreviewBox").style.display = "none";
+            
+            document.getElementById("editArticleId").value = "";
+            document.getElementById("editArticleTitle").value = "";
+            document.getElementById("editArticleTags").value = "";
+            document.getElementById("editArticleContent").value = "";
+            
+            const form = document.getElementById("articleForm");
+            const readMode = document.getElementById("articleReadMode");
+
+            if (!articleId) {
+                // CREATE MODE (Always Form)
+                document.getElementById("editorTitleMode").innerText = "Create New Article";
+                form.style.display = "block";
+                readMode.style.display = "none";
+                document.getElementById("editArticleTags").parentElement.style.display = "block"; // Show tags block for creation
+            } else {
+                // READ / EDIT MODE
+                document.getElementById("editorTitleMode").innerText = "View Article";
+                form.style.display = "none"; // start in read mode
+                readMode.style.display = "block";
+                document.getElementById("editArticleId").value = articleId;
+                
+                // Fetch full article
+                const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+                try {
+                    const res = await fetch(`http://localhost:8080/api/workspaces/${currentWorkspaceId}/articles/${articleId}`, {
+                        headers: { "Authorization": `Bearer ${token}` }
+                    });
+                    
+                    if (res.ok) {
+                        const data = await res.json();
+                        // Populate Read Mode
+                        document.getElementById("readArticleTitle").innerText = data.title;
+                        document.getElementById("readArticleTags").innerText = data.tags ? data.tags.map(t => `#${t}`).join(' ') : "";
+                        document.getElementById("readArticleContent").innerHTML = marked.parse(data.content);
+                        document.getElementById("readArticleAuthor").innerText = `${data.editor_first_name} ${data.editor_last_name || ''}`;
+                        
+                        // Populate Edit Mode (in case they toggle)
+                        document.getElementById("editArticleTitle").value = data.title;
+                        document.getElementById("editArticleContent").value = data.content;
+                        document.getElementById("editArticleTags").parentElement.style.display = "none"; // Hide tags edit for now (Not required in prompt)
+                        
+                        // Role Based Actions
+                        const actions = document.getElementById("readModeActions");
+                        const archBtn = document.querySelector(".remove-btn[onclick='archiveArticle()']");
+                        
+                        if (currentUserRole === 'Owner' || currentUserRole === 'Admin') {
+                            actions.style.display = "block";
+                            archBtn.style.display = "inline-block";
+                        } else if (currentUserRole === 'Editor') {
+                            actions.style.display = "block";
+                            archBtn.style.display = "none"; // Editors can't archive
+                        } else {
+                            actions.style.display = "none"; // Viewers see nothing
+                        }
+
+                    }
+                } catch (err) {
+                    console.error("Error fetching article", err);
+                }
+            }
+        }
+        
+        function toggleArticleEditMode(isEditing) {
+            document.getElementById("articleForm").style.display = isEditing ? "block" : "none";
+            document.getElementById("articleReadMode").style.display = isEditing ? "none" : "block";
+            document.getElementById("editorTitleMode").innerText = isEditing ? "Edit Article" : "View Article";
+        }
+
+        function closeArticleEditor() {
+            document.getElementById("articleEditorView").style.display = "none";
+            document.getElementById("articlesListView").style.display = "block";
+            
+            // Reload list to reflect changes
+            loadArticles();
+        }
+        
+        function previewMarkdown() {
+            const content = document.getElementById("editArticleContent").value;
+            const previewBox = document.getElementById("markdownPreviewBox");
+            if (previewBox.style.display === "none") {
+                previewBox.innerHTML = marked.parse(content);
+                previewBox.style.display = "block";
+            } else {
+                previewBox.style.display = "none";
+            }
+        }
+
+        document.getElementById("articleForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+            
+            const articleId = document.getElementById("editArticleId").value;
+            const title = document.getElementById("editArticleTitle").value;
+            const content = document.getElementById("editArticleContent").value;
+            const tagsInput = document.getElementById("editArticleTags").value;
+            const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
+
+            const isUpdate = !!articleId;
+            const url = `http://localhost:8080/api/workspaces/${currentWorkspaceId}/articles${isUpdate ? `/${articleId}` : ''}`;
+            const method = isUpdate ? "PUT" : "POST";
+
+            try {
+                const res = await fetch(url, {
+                    method: method,
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}` 
+                    },
+                    body: JSON.stringify({ title, content, tags })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    alert(data.message);
+                    if (!isUpdate) {
+                        closeArticleEditor();
+                    } else {
+                        // Refresh the view mode
+                        await openArticleEditor(articleId);
+                        toggleArticleEditMode(false);
+                    }
+                } else {
+                    const data = await res.json();
+                    alert(data.message);
+                }
+            } catch (err) {
+                console.error("Error saving article", err);
+            }
+        });
+
+        async function archiveArticle() {
+            const articleId = document.getElementById("editArticleId").value;
+            if (!articleId) return;
+            if (!confirm("Are you sure you want to archive this article? It will be removed from the list.")) return;
+
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+            try {
+                const res = await fetch(`http://localhost:8080/api/workspaces/${currentWorkspaceId}/articles/${articleId}`, {
+                    method: "DELETE",
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    alert("Article archived.");
+                    closeArticleEditor();
+                } else {
+                    const data = await res.json();
+                    alert(data.message);
+                }
+            } catch (err) {
+                console.error("Error archiving article", err);
+            }
+        }
+
+    </script>
 </body>
 
 </html>
