@@ -1,35 +1,66 @@
-=== Kimis System Technical Summary ===
+# Kimis System - Technical Documentation
 
-1. INTRODUCTION
-This program is an Express.js backend server that provides a RESTful API for handling user authentication and administrative data. It securely interacts with a PostgreSQL database, tracks users through stateless JSON Web Tokens (JWTs), and resolves CORS (Cross-Origin Resource Sharing) barriers to allow a distinct frontend app (HTML/JS) to make requests seamlessly.
+## 1. Overview
+KiMiS (Knowledge Intelligence Management System) is a modular web application designed for workspace collaboration, knowledge management, and visual process mapping.
 
-2. DATABASE IMPLEMENTATION (PostgreSQL)
-The application originally utilized a dummy memory-based array to mock user records. It has now been upgraded to a production-ready RDBMS:
-- Database Driver: Uses the `pg` (node-postgres) package.
-- Connection: Connected to PostgreSQL natively on `localhost:5432` against user `postgres` with password `11111`.
-- The Database: Targets a database named `kimis`.
-- The Table: It expects a table named `users` with standard fields: `id` (SERIAL PRIMARY KEY), `email` (VARCHAR UNIQUE), `password` (VARCHAR), and `role` (VARCHAR DEFAULT 'user').
+The system is built with a **Node.js/Express** backend and a **Vanilla HTML/CSS/JS** frontend. It follows a modular architecture where features are separated into dedicated route and module files.
 
-To keep things efficient, we don't construct and connect single queries one at a time. The database configuration utilizes a robust `pg.Pool` connection pool. 
-- A Pool acts safely like a queue for client queries, efficiently handling concurrent requests matching users up with idling database connections, freeing up resources when queries settle.
+## 2. Architecture & File Structure
+The project has been refactored from a monolithic script into a clean, modular structure:
+- **`server.js`**: Slim entry point that bootstraps the Express app.
+- **`config/db.js`**: Manages the PostgreSQL connection pool.
+- **`middleware/`**: Contains `auth.js` (JWT verification) and `rbac.js` (Workspace-level permissions).
+- **`routes/`**: Feature-specific API endpoints (`auth`, `users`, `workspaces`, `members`, `articles`, `workflows`).
+- **`frontend/`**: Separates the UI into HTML, `css/dashboard.css`, and modular JS files in `js/`.
 
-Prepared Statements / Parameterization: 
-- To avoid highly dangerous "SQL Injections," we never interpolate untrustworthy user variables directly into query strings (like "SELECT * FROM users WHERE email = " + email).
-- Instead, the program sends parameterized queries like ($1, $2). The `pg` module safely binds these input values underneath the hood. 
-Example query: `pool.query("SELECT * FROM users WHERE email = $1", [email])`
+## 3. Database Schema (PostgreSQL)
+The system uses a relational PostgreSQL database with the following core tables:
+- **`users`**: Auth data (email, password) and global roles (admin/user).
+- **`workspaces`**: Logical containers for teams and projects.
+- **`workspace_memberships`**: Links users to workspaces with specific roles.
+- **`articles`**: Knowledge base entries (Markdown supported).
+- **`workflows`**: Metadata for processes.
+- **`workflow_nodes`**: Steps in a process (action, decision, start, end, etc.).
+- **`workflow_edges`**: Directional connections between nodes with optional conditions.
 
-3. AUTHENTICATION (JSON Web Tokens - JWT)
-The system leverages JWTs (JSON Web Tokens) with a symmetric signature algorithm ("your_super_secret_key" mapping to `SECRET` variable).
-- How Login Works (`POST /api/login`): 
-  You provide the program with an email and a password. A PostgreSQL query validates the record against the user table. If successful, `jwt.sign()` generates a 1-hour expiring security token wrapped directly in a JSON packet that gets handed back to the user's browser.
-  
-- How JWTs are Checked: We use an architectural pattern called "Middleware" (`function authenticateToken`).
-  Whenever users try to hit guarded endpoints like retrieving their personal info (`GET /api/me`) or hitting admin routes (`GET /api/admin-data`), their web requests must have a header specifying: `Authorization: Bearer <the-provided-token>`.
-  The middleware halts their request, cryptographically validates the token payload utilizing the exact same `SECRET` key used to originally mint it, blocks entry if tampered/hacked, and moves to the next application instruction on verify passing.
+## 4. Authentication & Security
+- **JWT (JSON Web Tokens)**: Stateless authentication. Tokens are stored in the browser's `localStorage` or `sessionStorage`.
+- **Stateless Validation**: Backend verifies the token signature on every protected request.
+- **Prepared Statements**: All database queries use parameterization (e.g., `$1, $2`) to prevent SQL Injection.
+- **Security Middleware**: `authenticateToken` ensures the user is logged in before accessing any feature.
 
-4. ENDPOINT OVERVIEW
-The main exposed routing pathways over Port 8080 look like this:
-- `POST /api/login`: Looks up ($1, $2) email alongside password into database, generating a token.
-- `POST /api/register`: Checks against duplicates ($1), natively inserts via PostgreSQL syntax into the `users` table via `INSERT INTO users (email, password, role) VALUES ($1, $2, 'user')`.
-- `GET /api/me`: Enforces Middleware Authorization (`authenticateToken`), looking up your payload Token ID into DB.
-- `GET /api/admin-data`: Enforces dual Middleware logic (`authenticateToken` > `authorizeRole('admin')`), triggering a `SELECT COUNT(*)` on active users from PG exclusively if valid.
+## 5. Role-Based Access Control (RBAC)
+KiMiS implements a dual-layer RBAC system:
+### Layer 1: Global Roles
+- **Admin**: Can access system-wide sensitive data and manage global users.
+- **User**: Standard access.
+
+### Layer 2: Workspace Roles
+Permission is checked per workspace using the `checkWorkspaceRole` middleware:
+- **Owner**: Full control over the workspace, articles, and workflows. Can delete the workspace and manage all members.
+- **Admin**: Can manage most members, articles, and workflows.
+- **Editor**: Can create and edit articles/workflows but cannot manage workspace membership.
+- **Viewer**: Read-only access to articles and workflows within the workspace.
+
+## 6. Knowledge Articles (KB)
+The KB module allows users to document procedures and information:
+- **Markdown Support**: Uses `marked.js` on the frontend for rich text rendering.
+- **Versioning**: Track updates through `created_at` and `updated_at`.
+- **Drafts/Archiving**: Articles can be "deleted" (soft-delete/archive) without removing them from the DB.
+- **Linkage**: Articles can be linked to specific nodes in a visual workflow for contextual documentation.
+
+## 7. Visual Workflow Engine (Graph-Based)
+Unlike a simple list, KiMiS uses a directed graph to represent processes:
+- **Nodes**: Represent actions, decisions, start/end points, and notes.
+- **Edges**: Directional arrows connecting nodes.
+- **Conditional Branching**: Edges can carry "conditions" (e.g., "Yes/No") to represent decision paths in a process.
+- **Referential Integrity**: Deleting a workflow cascade-deletes its nodes and edges. Deleting a node removes its inbound and outbound edges.
+- **Visual Persistence**: Node coordinates (`position_x`, `position_y`) are saved to allow a persistent visual layout on the canvas.
+
+## 8. API Endpoints Summary
+- **/api/auth**: `/login`, `/register`, `/health`
+- **/api/me**: Profile management and global admin data.
+- **/api/workspaces**: CRUD for workspaces.
+- **/api/workspaces/:wsId/members**: Manage team members and roles.
+- **/api/workspaces/:wsId/articles**: KB management.
+- **/api/workspaces/:wsId/workflows**: Visual workflow management including nodes and edges.
