@@ -16,10 +16,15 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // ── Route Mounting ──────────────────────────────────
 app.use('/api', require('./routes/auth'));
 app.use('/api', require('./routes/users'));
-app.use('/api/workspaces', require('./routes/workspaces'));
+
+// Sub-resources first
 app.use('/api/workspaces/:workspaceId/members', require('./routes/members'));
 app.use('/api/workspaces/:workspaceId/articles', require('./routes/articles'));
 app.use('/api/workspaces/:workspaceId/workflows', require('./routes/workflows'));
+app.use('/api/workspaces/:wsId/ai', require('./routes/aiRoutes'));
+
+// General resource last
+app.use('/api/workspaces', require('./routes/workspaces'));
 
 // ── Root ────────────────────────────────────────────
 app.get('/', (req, res) => {

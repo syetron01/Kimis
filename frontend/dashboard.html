@@ -8,6 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <!-- Dashboard Styles -->
     <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/ai.css">
 </head>
 
 <body>
@@ -97,6 +98,16 @@
                     <button type="button" class="tab-btn active" data-tab="members" onclick="switchWsTab('members')">Members</button>
                     <button type="button" class="tab-btn" data-tab="articles" onclick="switchWsTab('articles')">Articles</button>
                     <button type="button" class="tab-btn" data-tab="workflows" onclick="switchWsTab('workflows')">Workflows</button>
+                </div>
+
+                <!-- AI ASSISTANT -->
+                <div class="ai-assistant-container">
+                    <h4><span>🔍</span> AI Knowledge Assistant</h4>
+                    <div class="ai-search-box">
+                        <input type="text" id="aiQueryInput" placeholder="Ask a question (e.g. 'How to reset password?')">
+                        <button type="button" class="ai-ask-btn" onclick="askAI()">Ask AI</button>
+                    </div>
+                    <div id="aiResultsContainer" style="display:none;"></div>
                 </div>
 
                 <!-- MEMBERS TAB -->
@@ -294,6 +305,7 @@
     <script src="js/workspaces.js"></script>
     <script src="js/articles.js"></script>
     <script src="js/workflows.js"></script>
+    <script src="js/ai.js"></script>
 
 </body>
 

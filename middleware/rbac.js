@@ -11,7 +11,7 @@ const roleHierarchy = {
 // Middleware to check if the user has at least `minRole` in the workspace
 function requireWorkspaceRole(minRole) {
     return async (req, res, next) => {
-        const workspaceId = req.params.workspaceId || req.body.workspaceId;
+        const workspaceId = req.params.workspaceId || req.params.wsId || req.body.workspaceId;
         const userId = req.user.id;
 
         if (!workspaceId) {
@@ -19,6 +19,7 @@ function requireWorkspaceRole(minRole) {
         }
 
         try {
+            console.log(`DEBUG - RBAC Check: User ${userId} for Workspace ${workspaceId} (Req Role: ${minRole})`);
             const result = await pool.query(
                 "SELECT role FROM workspace_memberships WHERE user_id = $1 AND workspace_id = $2",
                 [userId, workspaceId]
