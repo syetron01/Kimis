@@ -1,174 +1,25 @@
-/* ==========================================
-   AI Assistant Styles
-   ========================================== */
+/*
+  ai.css — Scoped overrides for the AI assistant UI.
+  All core tokens come from design-system.css via dashboard.css.
+  This file only adds AI-specific component styles not already covered.
+*/
 
-.ai-assistant-container {
-    margin-bottom: 25px;
-    background: #f0f7ff;
-    padding: 20px;
-    border-radius: 12px;
-    border: 1px solid #d0e7ff;
-    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.1);
-}
-
-.ai-assistant-container h4 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    color: #2c3e50;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.ai-search-box {
-    display: flex;
-    gap: 10px;
-}
-
-.ai-search-box input {
-    flex: 1;
-    padding: 12px;
-    border-radius: 6px;
-    border: 1px solid #c0d9ef;
-    outline: none;
-    font-size: 14px;
-    transition: border-color 0.2s;
-}
-
-.ai-search-box input:focus {
-    border-color: #3498db;
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-}
-
-.ai-ask-btn {
-    background: #3498db !important;
-    color: white;
-    border: none;
-    padding: 10px 25px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-    margin-top: 0 !important;
-    width: auto !important;
-    transition: background 0.2s;
-}
-
-.ai-ask-btn:hover {
-    background: #2980b9 !important;
-}
-
-#aiResultsContainer {
-    margin-top: 20px;
-    border-top: 1px solid #d0e7ff;
-    padding-top: 15px;
-}
-
-.ai-result-item {
-    background: white;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 12px;
-    border: 1px solid #e0e6ed;
-    transition: transform 0.1s;
-}
-
-.ai-result-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-.ai-result-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-}
-
-.ai-result-title {
-    font-weight: bold;
-    color: #2b5876;
-    font-size: 15px;
-}
-
-.ai-result-type {
-    font-size: 10px;
-    background: #ecf0f1;
-    padding: 2px 8px;
-    border-radius: 10px;
-    text-transform: uppercase;
-    color: #7f8c8d;
-}
-
-.ai-result-snippet {
-    font-size: 13px;
-    color: #555;
-    line-height: 1.5;
-    font-style: italic;
-    background: #fdfdfd;
-    padding: 8px;
-    border-left: 3px solid #3498db;
-    margin: 10px 0;
-}
-
-.ai-workflow-box {
-    margin-top: 10px;
-    background: #f8f9fa;
-    padding: 12px;
-    border-radius: 6px;
-    border: 1px solid #eee;
-}
-
-.ai-workflow-title {
-    font-size: 12px;
-    font-weight: bold;
-    color: #34495e;
-    margin-bottom: 8px;
-    display: block;
-}
-
-.ai-workflow-steps {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: center;
-}
-
-.ai-step {
-    font-size: 12px;
-    background: #fff;
-    border: 1px solid #ddd;
-    padding: 4px 10px;
-    border-radius: 4px;
-}
-
-.ai-step-arrow {
-    font-size: 12px;
-    color: #bdc3c7;
-}
-
-.ai-no-results {
-    text-align: center;
-    color: #7f8c8d;
-    padding: 20px;
-    font-size: 14px;
-}
-
-.ai-loading {
-    text-align: center;
-    padding: 20px;
-}
-
-.ai-loading-spinner {
-    border: 3px solid #f3f3f3;
-    border-top: 3px solid #3498db;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    animation: spin 1s linear infinite;
-    display: inline-block;
-}
+/* AI result rows are already styled in dashboard.css.
+   This file handles the loading spinner animation. */
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.ai-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border-default);
+  border-top-color: var(--primary);
+  border-radius: 9999px;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 8px;
 }

@@ -1,0 +1,257 @@
+/* ==========================================================
+   KiMiS DESIGN SYSTEM — design-system.css
+   Burnt Orange · IBM Plex · Solid Dark Surfaces
+   ========================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+/* ── Color Tokens ─────────────────────────────────────── */
+:root {
+  /* Surfaces — lightened from pure black */
+  --bg-base:        #18181B;   /* was #0D0D0D */
+  --bg-surface:     #222226;   /* was #161618 */
+  --bg-elevated:    #2C2C31;   /* was #1E1E21 */
+  --bg-sunken:      #141416;   /* was #0A0A0C */
+
+  /* Primary — Burnt Orange */
+  --primary:        #C2410C;
+  --primary-hover:  #9A3412;
+  --primary-muted:  #431407;
+  --primary-text:   #FB923C;
+
+  /* Borders — slightly more visible */
+  --border-subtle:  rgba(255,255,255,0.09);
+  --border-default: rgba(255,255,255,0.16);
+  --border-strong:  rgba(255,255,255,0.28);
+  --border-primary: #C2410C;
+
+  /* Text */
+  --text-primary:   #F4F4F5;
+  --text-secondary: #B4B4BC;   /* was #A1A1AA — slightly brighter */
+  --text-tertiary:  #71717A;   /* was #52525B — more readable */
+  --text-accent:    #FB923C;
+
+  /* Semantic — Success */
+  --success-bg:     #052E16;
+  --success-border: #166534;
+  --success-text:   #4ADE80;
+
+  /* Semantic — Danger */
+  --danger-bg:      #2D0000;
+  --danger-border:  #7F1D1D;
+  --danger-text:    #F87171;
+
+  /* Semantic — Warning */
+  --warning-bg:     #1C1000;
+  --warning-border: #78350F;
+  --warning-text:   #FCD34D;
+
+  /* Semantic — Info */
+  --info-bg:        #0C1A2E;
+  --info-border:    #1E3A5F;
+  --info-text:      #60A5FA;
+}
+
+/* ── Reset & Base ─────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: 'IBM Plex Sans', sans-serif;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100dvh;
+}
+
+/* ── Typography ───────────────────────────────────────── */
+.t-display { font-size: 24px; font-weight: 600; line-height: 1.2; }
+.t-title   { font-size: 18px; font-weight: 600; line-height: 1.3; }
+.t-heading { font-size: 15px; font-weight: 600; line-height: 1.4; }
+.t-body    { font-size: 14px; font-weight: 400; line-height: 1.6; }
+.t-small   { font-size: 13px; font-weight: 400; line-height: 1.5; }
+.t-label   { font-size: 12px; font-weight: 500; line-height: 1.4; }
+.t-micro   { font-size: 11px; font-weight: 500; line-height: 1.3; letter-spacing: 0.07em; text-transform: uppercase; }
+.t-code    { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 400; line-height: 1.7; }
+.t-mono    { font-family: 'IBM Plex Mono', monospace; }
+
+/* ── Buttons ──────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 6px;
+  border: none;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.btn:active { transform: scale(0.98); transition-duration: 80ms; }
+
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+}
+.btn-primary:hover { background: var(--primary-hover); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-default);
+}
+.btn-ghost:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.btn-danger {
+  background: transparent;
+  color: var(--danger-text);
+  border: 1px solid rgba(239,68,68,0.3);
+}
+.btn-danger:hover {
+  background: rgba(239,68,68,0.08);
+  border-color: rgba(239,68,68,0.5);
+}
+
+.btn-sm  { height: 32px; padding: 0 12px; font-size: 13px; }
+.btn-lg  { height: 40px; padding: 0 20px; }
+.btn-full { width: 100%; }
+.btn-disabled, .btn:disabled {
+  background: var(--bg-elevated);
+  color: var(--text-tertiary);
+  border: 1px solid var(--border-subtle);
+  cursor: not-allowed;
+}
+
+/* ── Form Inputs ──────────────────────────────────────── */
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.form-input {
+  width: 100%;
+  height: 38px;
+  background: var(--bg-sunken);
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  padding: 0 12px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 100ms ease, box-shadow 100ms ease;
+}
+
+.form-input::placeholder { color: var(--text-tertiary); }
+
+.form-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(194,65,12,0.18);
+}
+
+.form-input:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.form-input.error { border-color: var(--danger-text); }
+.form-error { font-size: 12px; color: var(--danger-text); margin-top: 4px; }
+
+.form-group { margin-bottom: 16px; }
+
+/* Password field wrapper */
+.input-wrapper {
+  position: relative;
+}
+.input-wrapper .form-input { padding-right: 40px; }
+.input-wrapper .input-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  padding: 0;
+  height: auto;
+}
+.input-wrapper .input-toggle:hover { color: var(--text-secondary); }
+
+/* ── Badges ───────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.badge-article { background: #0C1A2E; border: 1px solid #1E3A5F; color: #60A5FA; }
+.badge-node    { background: #1C1000; border: 1px solid #78350F; color: #FCD34D; }
+.badge-active  { background: #052E16; border: 1px solid #166534; color: #4ADE80; }
+.badge-draft   { background: #1C1C1C; border: 1px solid #3F3F46; color: #A1A1AA; }
+
+/* Role badges */
+.badge-viewer { background: #18181B; border: 1px solid #3F3F46; color: #A1A1AA; }
+.badge-editor { background: #0C1A2E; border: 1px solid #1E3A5F; color: #60A5FA; }
+.badge-admin  { background: #1C0D00; border: 1px solid #7C2D12; color: #FB923C; }
+.badge-owner  { background: #C2410C; border: none; color: #FFFFFF; }
+
+/* ── Divider ──────────────────────────────────────────── */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border-subtle);
+  margin: 20px 0;
+}
+
+.section-label {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-tertiary);
+  margin-bottom: 12px;
+}
+
+/* ── Cards ────────────────────────────────────────────── */
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  transition: border-color 150ms ease;
+}
+
+.card:hover { border-color: var(--border-strong); }
+
+/* ── Reduced motion ───────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

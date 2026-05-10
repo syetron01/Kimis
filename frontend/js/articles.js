@@ -38,16 +38,41 @@ async function loadArticles() {
             const articles = await res.json();
 
             if (articles.length === 0) {
-                container.innerHTML = `<p style="color:#666;">No articles found in this workspace.</p>`;
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-tertiary);margin-bottom:12px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        <p>No articles yet. Create one to get started.</p>
+                    </div>`;
                 return;
             }
 
-            container.innerHTML = articles.map(a => `
-                <div class="article-card" onclick="openArticleEditor(${a.id})">
-                    <h4>${a.title}</h4>
-                    <p class="article-meta">By ${a.author_first_name} ${a.author_last_name || ''} | Updated: ${new Date(a.updated_at).toLocaleDateString()}</p>
-                </div>
-            `).join('');
+            container.innerHTML = articles.map(a => {
+                const date = new Date(a.updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const initials = [a.author_first_name?.[0], (a.author_last_name || '')?.[0]].filter(Boolean).join('').toUpperCase() || '?';
+                const tags = a.tags && a.tags.length ? a.tags.map(t => `<span class="article-tag">#${t}</span>`).join('') : '';
+
+                return `
+                    <div class="article-row-card" onclick="openArticleEditor(${a.id})">
+                        <div class="article-row-accent"></div>
+                        <div class="article-row-body">
+                            <div class="article-row-title">${a.title}</div>
+                            ${tags ? `<div class="article-tags-row">${tags}</div>` : ''}
+                            <div class="article-row-meta">
+                                <div class="article-author-chip">
+                                    <div class="article-author-avatar">${initials}</div>
+                                    <span>${a.author_first_name} ${a.author_last_name || ''}</span>
+                                </div>
+                                <div class="article-row-date">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                    ${date}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="article-row-arrow">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                        </div>
+                    </div>`;
+            }).join('');
         }
     } catch (err) {
         console.error("Error loading articles", err);
@@ -57,7 +82,6 @@ async function loadArticles() {
 function openArticleEditor(articleId) {
     document.getElementById("articlesListView").style.display = "none";
     document.getElementById("articleEditorView").style.display = "block";
-    document.getElementById("markdownPreviewBox").style.display = "none";
 
     document.getElementById("editArticleId").value = "";
     document.getElementById("editArticleTitle").value = "";
@@ -72,6 +96,7 @@ function openArticleEditor(articleId) {
         document.getElementById("editorTitleMode").innerText = "View Article";
         form.style.display = "none"; // start in read mode
         readMode.style.display = "block";
+        document.getElementById("saveArticleBtn").style.display = "none";
         document.getElementById("editArticleId").value = articleId;
 
         // Fetch full article
@@ -86,9 +111,26 @@ function openArticleEditor(articleId) {
                     const data = await res.json();
                     // Populate Read Mode
                     document.getElementById("readArticleTitle").innerText = data.title;
-                    document.getElementById("readArticleTags").innerText = data.tags ? data.tags.map(t => `#${t}`).join(' ') : "";
+
+                    // Tags as styled chips
+                    const tagsEl = document.getElementById("readArticleTags");
+                    tagsEl.innerHTML = data.tags && data.tags.length
+                        ? data.tags.map(t => `<span class="article-tag">#${t}</span>`).join('')
+                        : '';
+
                     document.getElementById("readArticleContent").innerHTML = marked.parse(data.content);
-                    document.getElementById("readArticleAuthor").innerText = `${data.editor_first_name} ${data.editor_last_name || ''}`;
+
+                    // Author name + avatar initials
+                    const authorName = `${data.editor_first_name} ${data.editor_last_name || ''}`.trim();
+                    document.getElementById("readArticleAuthor").innerText = authorName;
+                    const initials = [data.editor_first_name?.[0], (data.editor_last_name || '')?.[0]].filter(Boolean).join('').toUpperCase() || '?';
+                    document.getElementById("readArticleAvatarEl").innerText = initials;
+
+                    // Date
+                    const dateStr = data.updated_at
+                        ? new Date(data.updated_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+                        : '—';
+                    document.getElementById("readArticleDate").innerText = dateStr;
 
                     // Populate Edit Mode (in case they toggle)
                     document.getElementById("editArticleTitle").value = data.title;
@@ -97,13 +139,13 @@ function openArticleEditor(articleId) {
 
                     // Role Based Actions
                     const actions = document.getElementById("readModeActions");
-                    const archBtn = document.querySelector(".remove-btn[onclick='archiveArticle()']");
+                    const archBtn = document.querySelector(".remove-btn[onclick='deleteArticle()']");
 
                     if (currentUserRole === 'Owner' || currentUserRole === 'Admin') {
-                        actions.style.display = "block";
+                        actions.style.display = "flex";
                         archBtn.style.display = "inline-block";
                     } else if (currentUserRole === 'Editor') {
-                        actions.style.display = "block";
+                        actions.style.display = "flex";
                         archBtn.style.display = "none";
                     } else {
                         actions.style.display = "none";
@@ -118,12 +160,23 @@ function openArticleEditor(articleId) {
         document.getElementById("editorTitleMode").innerText = "Create Article";
         form.style.display = "block";
         readMode.style.display = "none";
+        document.getElementById("saveArticleBtn").style.display = "inline-block";
     }
 }
 
 function toggleArticleEditMode(isEditing) {
     document.getElementById("articleForm").style.display = isEditing ? "block" : "none";
     document.getElementById("articleReadMode").style.display = isEditing ? "none" : "block";
+    document.getElementById("saveArticleBtn").style.display = isEditing ? "inline-block" : "none";
+}
+
+function toggleArticleDetails() {
+    const panel = document.getElementById('articleDetailsPanel');
+    if (panel.style.display === 'none') {
+        panel.style.display = 'flex';
+    } else {
+        panel.style.display = 'none';
+    }
 }
 
 function closeArticleEditor() {
@@ -134,60 +187,52 @@ function closeArticleEditor() {
     loadArticles();
 }
 
-function previewMarkdown() {
+
+async function saveArticle() {
+    const token = getToken();
+
+    const articleId = document.getElementById("editArticleId").value;
+    const title = document.getElementById("editArticleTitle").value;
     const content = document.getElementById("editArticleContent").value;
-    const previewBox = document.getElementById("markdownPreviewBox");
-    previewBox.innerHTML = marked.parse(content);
-    previewBox.style.display = previewBox.style.display === "none" ? "block" : "none";
+    const tags = document.getElementById("editArticleTags").value
+        .split(',').map(t => t.trim()).filter(t => t.length > 0);
+
+    if (!title.trim()) {
+        alert("Article title is required.");
+        return;
+    }
+
+    const url = articleId
+        ? `${API_BASE}/workspaces/${currentWorkspaceId}/articles/${articleId}`
+        : `${API_BASE}/workspaces/${currentWorkspaceId}/articles`;
+    const method = articleId ? "PUT" : "POST";
+
+    try {
+        const res = await fetch(url, {
+            method: method,
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({ title, content, tags })
+        });
+
+        if (res.ok) {
+            alert(articleId ? "Article updated!" : "Article created!");
+            closeArticleEditor();
+        } else {
+            const data = await res.json();
+            alert(data.message);
+        }
+    } catch (err) {
+        console.error("Error saving article", err);
+    }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    // Submit Article (Create or Update)
-    const artForm = document.getElementById("articleForm");
-    if (artForm) {
-        artForm.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const token = getToken();
-
-            const articleId = document.getElementById("editArticleId").value;
-            const title = document.getElementById("editArticleTitle").value;
-            const content = document.getElementById("editArticleContent").value;
-            const tags = document.getElementById("editArticleTags").value
-                .split(',').map(t => t.trim()).filter(t => t.length > 0);
-
-            const url = articleId
-                ? `${API_BASE}/workspaces/${currentWorkspaceId}/articles/${articleId}`
-                : `${API_BASE}/workspaces/${currentWorkspaceId}/articles`;
-            const method = articleId ? "PUT" : "POST";
-
-            try {
-                const res = await fetch(url, {
-                    method: method,
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ title, content, tags })
-                });
-
-                if (res.ok) {
-                    alert(articleId ? "Article updated!" : "Article created!");
-                    closeArticleEditor();
-                } else {
-                    const data = await res.json();
-                    alert(data.message);
-                }
-            } catch (err) {
-                console.error("Error saving article", err);
-            }
-        });
-    }
-});
-
-async function archiveArticle() {
+async function deleteArticle() {
     const articleId = document.getElementById("editArticleId").value;
     if (!articleId) return;
-    if (!confirm("Archive this article? It will be hidden from the list.")) return;
+    if (!confirm("Are you sure you want to delete this article? This action cannot be undone.")) return;
 
     const token = getToken();
 
@@ -198,13 +243,13 @@ async function archiveArticle() {
         });
 
         if (res.ok) {
-            alert("Article archived.");
+            alert("Article deleted.");
             closeArticleEditor();
         } else {
             const data = await res.json();
             alert(data.message);
         }
     } catch (err) {
-        console.error("Error archiving article", err);
+        console.error("Error deleting article", err);
     }
 }

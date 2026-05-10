@@ -14,34 +14,48 @@ async function loadUserInfo() {
         if (res.ok) {
             const data = await res.json();
 
-            // Display labels
-            document.getElementById("welcomeMsg").innerText = `Welcome, ${data.first_name || 'User'}!`;
-            document.getElementById("userFirstName").innerText = data.first_name || "N/A";
-            document.getElementById("userLastName").innerText = data.last_name || "N/A";
-            document.getElementById("userUsername").innerText = data.username || "N/A";
-            document.getElementById("userEmail").innerText = data.email;
-            document.getElementById("userRole").innerText = data.role;
-            document.getElementById("userJobTitle").innerText = data.job_title || "N/A";
-            document.getElementById("userDepartment").innerText = data.department || "N/A";
+            const fullName = [data.first_name, data.last_name].filter(Boolean).join(' ') || '—';
+            const initials = [data.first_name?.[0], data.last_name?.[0]].filter(Boolean).join('').toUpperCase() || '?';
 
-            if (data.profile_picture) {
-                document.getElementById("displayImg").src = `http://localhost:8080${data.profile_picture}`;
+            // ── Navbar user info ──────────────────────────
+            setEl("userFullName",  fullName);
+            // Navbar avatar
+            populateAvatar('displayImg', 'avatarInitials', data.profile_picture, initials);
+            // Role badge in navbar
+            const roleBadge = document.getElementById("userRole");
+            if (roleBadge) {
+                roleBadge.textContent = data.role;
+                roleBadge.className   = `badge badge-${data.role === 'admin' ? 'admin' : 'viewer'}`;
             }
+
+            // ── Profile section ───────────────────────────
+            setEl("profileFullName",  fullName);
+            setEl("profileUsername",  data.username ? `@${data.username}` : '—');
+            setEl("userEmail",        data.email      || '—');
+            setEl("userJobTitle",     data.job_title  || '—');
+            setEl("userDepartment",   data.department || '—');
+            setEl("userRoleDetail",   data.role       || '—');
+            // Large profile avatar
+            populateAvatar('displayImgLarge', 'avatarInitialsLarge', data.profile_picture, initials);
 
             // Populate edit form
-            document.getElementById("editFirstName").value = data.first_name || "";
-            document.getElementById("editLastName").value = data.last_name || "";
-            document.getElementById("editUsername").value = data.username || "";
-            document.getElementById("editJobTitle").value = data.job_title || "";
-            document.getElementById("editDepartment").value = data.department || "";
+            setVal("editFirstName",  data.first_name  || "");
+            setVal("editLastName",   data.last_name   || "");
+            setVal("editUsername",   data.username    || "");
+            setVal("editJobTitle",   data.job_title   || "");
+            setVal("editDepartment", data.department  || "");
 
+            // Show admin panel if admin
             if (data.role === "admin") {
-                document.getElementById("adminPanel").style.display = "block";
+                const adminPanel = document.getElementById("adminPanel");
+                if (adminPanel) adminPanel.style.display = "block";
             }
 
-            // Load Workspaces after user info is loaded
-            document.getElementById("workspacesSection").style.display = "block";
+            // Show workspaces section and load workspaces
+            const wsSection = document.getElementById("sectionWorkspaces");
+            if (wsSection) wsSection.style.display = "block";
             await loadWorkspaces();
+
         } else {
             logout();
         }
@@ -50,46 +64,52 @@ async function loadUserInfo() {
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    // Toggle Edit Mode
-    const editBtn = document.getElementById("editBtn");
-    const cancelBtn = document.getElementById("cancelBtn");
-    const userInfo = document.getElementById("userInfo");
-    const editForm = document.getElementById("editForm");
+function setEl(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+}
 
-    if (editBtn && cancelBtn && userInfo && editForm) {
-        editBtn.addEventListener("click", () => {
-            userInfo.style.display = "none";
-            editForm.style.display = "block";
-        });
+function setVal(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.value = value;
+}
 
-        cancelBtn.addEventListener("click", () => {
-            userInfo.style.display = "block";
-            editForm.style.display = "none";
-        });
+function populateAvatar(imgId, initialsId, profilePicturePath, initials) {
+    const img      = document.getElementById(imgId);
+    const initsEl  = document.getElementById(initialsId);
+    if (!img && !initsEl) return;
+    if (profilePicturePath) {
+        if (img) { img.src = `http://localhost:8080${profilePicturePath}`; img.style.display = 'block'; }
+        if (initsEl) initsEl.style.display = 'none';
+    } else {
+        if (img) img.style.display = 'none';
+        if (initsEl) { initsEl.textContent = initials; initsEl.style.display = 'inline'; }
     }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
 
     // Save Changes
+    const editForm = document.getElementById("editForm");
     if (editForm) {
         editForm.addEventListener("submit", async function (e) {
             e.preventDefault();
-            const token = getToken();
-            const saveBtn = e.target.querySelector(".save-btn");
+            const token   = getToken();
+            const saveBtn = e.target.querySelector(".btn-primary");
 
             const formData = new FormData();
-            formData.append("first_name", document.getElementById("editFirstName").value);
-            formData.append("last_name", document.getElementById("editLastName").value);
-            formData.append("username", document.getElementById("editUsername").value);
-            formData.append("job_title", document.getElementById("editJobTitle").value);
-            formData.append("department", document.getElementById("editDepartment").value);
+            formData.append("first_name",  document.getElementById("editFirstName").value);
+            formData.append("last_name",   document.getElementById("editLastName").value);
+            formData.append("username",    document.getElementById("editUsername").value);
+            formData.append("job_title",   document.getElementById("editJobTitle").value);
+            formData.append("department",  document.getElementById("editDepartment").value);
 
             const fileInput = document.getElementById("editProfilePic");
-            if (fileInput.files[0]) {
+            if (fileInput && fileInput.files[0]) {
                 formData.append("profile_picture", fileInput.files[0]);
             }
 
-            saveBtn.disabled = true;
-            saveBtn.innerText = "Saving...";
+            if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = "Saving···"; }
 
             try {
                 const res = await fetch(`${API_BASE}/me`, {
@@ -99,20 +119,21 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
 
                 if (res.ok) {
-                    alert("Profile updated successfully!");
-                    await loadUserInfo();
-                    userInfo.style.display = "block";
-                    editForm.style.display = "none";
+                    if (saveBtn) { saveBtn.textContent = "Saved ✓"; saveBtn.style.color = "var(--success-text)"; }
+                    setTimeout(async () => {
+                        await loadUserInfo();
+                        cancelEdit();
+                        if (saveBtn) { saveBtn.textContent = "Save Changes"; saveBtn.style.color = ""; saveBtn.disabled = false; }
+                    }, 1500);
                 } else {
                     const err = await res.json();
                     alert("Update failed: " + err.message);
+                    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = "Save Changes"; }
                 }
             } catch (error) {
                 console.error("Update error:", error);
                 alert("Error connecting to server");
-            } finally {
-                saveBtn.disabled = false;
-                saveBtn.innerText = "Save Changes";
+                if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = "Save Changes"; }
             }
         });
     }
@@ -121,11 +142,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const adminBtn = document.getElementById("fetchAdminDataBtn");
     if (adminBtn) {
         adminBtn.addEventListener("click", async function () {
-            const token = getToken();
+            const token     = getToken();
             const resultDiv = document.getElementById("adminResult");
 
-            resultDiv.innerText = "Fetching...";
-            resultDiv.style.color = "#333";
+            resultDiv.textContent = "Fetching···";
 
             try {
                 const res = await fetch(`${API_BASE}/admin-data`, {
@@ -135,16 +155,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (res.ok) {
                     const data = await res.json();
-                    resultDiv.innerText = JSON.stringify(data, null, 2);
-                    resultDiv.style.color = "green";
+                    resultDiv.textContent = JSON.stringify(data, null, 2);
+                    resultDiv.style.color = "var(--success-text)";
                 } else {
                     const error = await res.json();
-                    resultDiv.innerText = `Error: ${error.message} (Status: ${res.status})`;
-                    resultDiv.style.color = "red";
+                    resultDiv.textContent = `Error: ${error.message} (${res.status})`;
+                    resultDiv.style.color = "var(--danger-text)";
                 }
-            } catch (error) {
-                resultDiv.innerText = "Error: Server not reachable.";
-                resultDiv.style.color = "red";
+            } catch {
+                resultDiv.textContent = "Error: Server not reachable.";
+                resultDiv.style.color = "var(--danger-text)";
             }
         });
     }

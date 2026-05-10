@@ -1,183 +1,363 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <title>Kimis Register</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="KiMiS — Create your account to start managing knowledge and workflows.">
+  <title>Register — KiMiS</title>
+  <link rel="stylesheet" href="css/design-system.css">
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100dvh;
+      padding: 32px 24px;
+      background: var(--bg-base);
+    }
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #2b5876, #4e4376);
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0;
-        }
+    .auth-brand {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .auth-brand-name {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+    .auth-brand-tagline {
+      font-size: 13px;
+      color: var(--text-tertiary);
+      margin-top: 4px;
+    }
 
-        .login-card {
-            background: white;
-            padding: 40px;
-            border-radius: 10px;
-            width: 320px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            text-align: center;
-        }
+    .auth-card {
+      width: 100%;
+      max-width: 440px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: 10px;
+      padding: 36px;
+    }
 
-        .login-card h2 {
-            margin-bottom: 20px;
-        }
+    .auth-card-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 24px;
+    }
 
-        input {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
+    /* Two-column grid rows */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
 
-        button {
-            width: 100%;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            background: #4e4376;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-        }
+    /* Section divider */
+    .section-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0;
+    }
+    .section-divider-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border-subtle);
+    }
 
-        button:hover {
-            background: #372d63;
-        }
+    /* Profile picture upload */
+    .photo-upload-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
 
-        #message {
-            margin-top: 10px;
-            font-size: 14px;
-        }
+    .photo-circle {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      border-radius: 9999px;
+      background: var(--bg-sunken);
+      border: 1px dashed var(--border-default);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      overflow: hidden;
+      transition: border-color 150ms ease;
+    }
+    .photo-circle:hover { border-color: var(--border-strong); }
 
-        .links {
-            margin-top: 15px;
-            font-size: 14px;
-        }
+    .photo-circle img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 9999px;
+    }
 
-        .links a {
-            color: #4e4376;
-            text-decoration: none;
-        }
+    .photo-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      pointer-events: none;
+    }
+    .photo-placeholder svg { color: var(--text-tertiary); }
+    .photo-placeholder span {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      text-align: center;
+    }
 
-        .links a:hover {
-            text-decoration: underline;
-        }
-    </style>
+    .photo-remove {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 18px;
+      height: 18px;
+      background: var(--primary);
+      border-radius: 9999px;
+      border: none;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 11px;
+      line-height: 1;
+    }
 
+    .photo-upload-info {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      line-height: 1.5;
+    }
+
+    #profile_picture { display: none; }
+
+    /* Message */
+    #message {
+      font-size: 13px;
+      margin-top: 12px;
+      min-height: 20px;
+    }
+    .msg-success { color: var(--success-text); }
+    .msg-error   { color: var(--danger-text); }
+
+    /* Footer */
+    .auth-footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 13px;
+      color: var(--text-tertiary);
+    }
+    .auth-footer a {
+      color: var(--text-accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .auth-footer a:hover { text-decoration: underline; }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
-
 <body>
 
-    <div class="login-card">
-        <h2>Register</h2>
+  <div class="auth-brand">
+    <div class="auth-brand-name">KiMiS</div>
+    <div class="auth-brand-tagline">Knowledge Intelligence Management System</div>
+  </div>
 
-        <form id="registerForm">
-            <input type="text" id="first_name" placeholder="First Name (required)" required>
-            <input type="text" id="last_name" placeholder="Last Name">
-            <input type="text" id="username" placeholder="Username / Display Name (required)" required>
-            <input type="email" id="email" placeholder="Email Address (required)" required>
-            
-            <input type="password" id="password" placeholder="Password (required)" required minlength="8">
-            <input type="password" id="confirm_password" placeholder="Confirm Password (required)" required minlength="8">
-            
-            <input type="text" id="job_title" placeholder="Job Title / Position (optional)">
-            <input type="text" id="department" placeholder="Team / Department (optional)">
-            <label for="profile_picture" style="display: block; text-align: left; margin: 10px 0 5px 0; font-size: 14px;">Profile Picture (optional, max 5MB):</label>
-            <input type="file" id="profile_picture" accept="image/*">
+  <div class="auth-card">
+    <h1 class="auth-card-title">Create Account</h1>
 
-            <button id="submitBtn" type="submit">Create Account</button>
-        </form>
+    <form id="registerForm" novalidate>
 
-        <p id="message"></p>
+      <!-- SECTION: Account Credentials -->
+      <p class="section-label">Account Credentials</p>
 
-        <div class="links">
-            <a href="login.html">Already have an account? Login here</a>
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label" for="first_name">First Name <span style="color:var(--danger-text)">*</span></label>
+          <input class="form-input" type="text" id="first_name" placeholder="Jane" required autocomplete="given-name">
         </div>
-    </div>
+        <div class="form-group">
+          <label class="form-label" for="last_name">Last Name</label>
+          <input class="form-input" type="text" id="last_name" placeholder="Doe" autocomplete="family-name">
+        </div>
+      </div>
 
-    <script>
-        document.getElementById("registerForm").addEventListener("submit", async function (e) {
-            e.preventDefault();
+      <div class="form-group">
+        <label class="form-label" for="username">Username <span style="color:var(--danger-text)">*</span></label>
+        <input class="form-input" type="text" id="username" placeholder="jane.doe" required autocomplete="username">
+      </div>
 
-            const messageEl = document.getElementById("message");
-            const submitBtn = document.getElementById("submitBtn");
+      <div class="form-group">
+        <label class="form-label" for="email">Email <span style="color:var(--danger-text)">*</span></label>
+        <input class="form-input" type="email" id="email" placeholder="jane@example.com" required autocomplete="email">
+      </div>
 
-            const first_name = document.getElementById("first_name").value.trim();
-            const last_name = document.getElementById("last_name").value.trim();
-            const username = document.getElementById("username").value.trim();
-            const email = document.getElementById("email").value.trim();
-            const password = document.getElementById("password").value;
-            const confirm_password = document.getElementById("confirm_password").value;
-            const job_title = document.getElementById("job_title").value.trim();
-            const department = document.getElementById("department").value.trim();
-            const profile_picture = document.getElementById("profile_picture").files[0];
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label" for="password">Password <span style="color:var(--danger-text)">*</span></label>
+          <input class="form-input" type="password" id="password" placeholder="Min. 8 characters" required minlength="8" autocomplete="new-password">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="confirm_password">Confirm Password <span style="color:var(--danger-text)">*</span></label>
+          <input class="form-input" type="password" id="confirm_password" placeholder="Repeat password" required autocomplete="new-password">
+        </div>
+      </div>
 
-            if (password.length < 8) {
-                messageEl.style.color = "red";
-                messageEl.innerText = "Password must be at least 8 characters long.";
-                return;
-            }
+      <!-- SECTION: Profile -->
+      <div class="section-divider">
+        <div class="section-divider-line"></div>
+        <span class="section-label" style="margin:0; white-space:nowrap;">Profile — Optional</span>
+        <div class="section-divider-line"></div>
+      </div>
 
-            if (password !== confirm_password) {
-                messageEl.style.color = "red";
-                messageEl.innerText = "Passwords do not match.";
-                return;
-            }
+      <div class="form-group">
+        <label class="form-label" for="job_title">Job Title</label>
+        <input class="form-input" type="text" id="job_title" placeholder="e.g. Software Engineer">
+      </div>
 
-            const formData = new FormData();
-            formData.append('email', email);
-            formData.append('password', password);
-            formData.append('first_name', first_name);
-            formData.append('last_name', last_name);
-            formData.append('username', username);
-            formData.append('job_title', job_title);
-            formData.append('department', department);
-            if (profile_picture) {
-                formData.append('profile_picture', profile_picture);
-            }
+      <div class="form-group">
+        <label class="form-label" for="department">Department</label>
+        <input class="form-input" type="text" id="department" placeholder="e.g. Engineering">
+      </div>
 
-            submitBtn.disabled = true;
-            submitBtn.innerText = "Creating...";
-            messageEl.innerText = "";
+      <!-- Profile Picture -->
+      <div class="form-group">
+        <label class="form-label">Profile Photo</label>
+        <div class="photo-upload-wrapper">
+          <div class="photo-circle" id="photoCircle" onclick="document.getElementById('profile_picture').click()" role="button" aria-label="Upload profile photo" tabindex="0">
+            <div class="photo-placeholder" id="photoPlaceholder">
+              <!-- Camera icon -->
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>
+              </svg>
+              <span>Upload photo</span>
+            </div>
+            <img id="photoPreview" style="display:none;" alt="Profile preview">
+            <button type="button" class="photo-remove" id="photoRemove" aria-label="Remove photo">×</button>
+          </div>
+          <p class="photo-upload-info">JPG, PNG, GIF or WebP.<br>Max 5 MB.</p>
+        </div>
+        <input type="file" id="profile_picture" accept="image/*">
+      </div>
 
-            try {
-                const res = await fetch("http://localhost:8080/api/register", {
-                    method: "POST",
-                    body: formData
-                });
+      <button type="submit" class="btn btn-primary btn-full btn-lg" id="submitBtn">Create Account</button>
+    </form>
 
-                const data = await res.json();
+    <p id="message"></p>
+  </div>
 
-                if (res.ok) {
-                    messageEl.style.color = "green";
-                    messageEl.innerText = data.message + " Redirecting to login...";
-                    setTimeout(() => {
-                        window.location.href = "login.html";
-                    }, 2000);
-                } else {
-                    messageEl.style.color = "red";
-                    messageEl.innerText = data.message;
-                    submitBtn.disabled = false;
-                    submitBtn.innerText = "Create Account";
-                }
-            } catch (error) {
-                messageEl.style.color = "red";
-                messageEl.innerText = "Server not reachable.";
-                submitBtn.disabled = false;
-                submitBtn.innerText = "Create Account";
-            }
-        });
-    </script>
+  <p class="auth-footer">
+    Already have an account? <a href="login.html">Sign in</a>
+  </p>
 
+  <script>
+    // Photo upload preview
+    const fileInput    = document.getElementById('profile_picture');
+    const photoPreview = document.getElementById('photoPreview');
+    const placeholder  = document.getElementById('photoPlaceholder');
+    const removeBtn    = document.getElementById('photoRemove');
+
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+      const url = URL.createObjectURL(file);
+      photoPreview.src = url;
+      photoPreview.style.display = 'block';
+      placeholder.style.display = 'none';
+      removeBtn.style.display = 'flex';
+    });
+
+    removeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      fileInput.value = '';
+      photoPreview.src = '';
+      photoPreview.style.display = 'none';
+      placeholder.style.display = 'flex';
+      removeBtn.style.display = 'none';
+    });
+
+    // Register form submission — logic unchanged
+    const messageEl = document.getElementById('message');
+    const submitBtn = document.getElementById('submitBtn');
+
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      messageEl.className = '';
+      messageEl.textContent = '';
+
+      const first_name       = document.getElementById('first_name').value.trim();
+      const last_name        = document.getElementById('last_name').value.trim();
+      const username         = document.getElementById('username').value.trim();
+      const email            = document.getElementById('email').value.trim();
+      const password         = document.getElementById('password').value;
+      const confirm_password = document.getElementById('confirm_password').value;
+      const job_title        = document.getElementById('job_title').value.trim();
+      const department       = document.getElementById('department').value.trim();
+      const profile_picture  = fileInput.files[0];
+
+      if (password.length < 8) {
+        messageEl.className = 'msg-error';
+        messageEl.textContent = 'Password must be at least 8 characters long.';
+        return;
+      }
+      if (password !== confirm_password) {
+        messageEl.className = 'msg-error';
+        messageEl.textContent = 'Passwords do not match.';
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('email', email);
+      formData.append('password', password);
+      formData.append('first_name', first_name);
+      formData.append('last_name', last_name);
+      formData.append('username', username);
+      formData.append('job_title', job_title);
+      formData.append('department', department);
+      if (profile_picture) formData.append('profile_picture', profile_picture);
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Creating···';
+
+      try {
+        const res  = await fetch('http://localhost:8080/api/register', { method: 'POST', body: formData });
+        const data = await res.json();
+
+        if (res.ok) {
+          messageEl.className = 'msg-success';
+          messageEl.textContent = data.message + ' Redirecting to login…';
+          setTimeout(() => window.location.href = 'login.html', 2000);
+        } else {
+          messageEl.className = 'msg-error';
+          messageEl.textContent = data.message;
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Create Account';
+        }
+      } catch {
+        messageEl.className = 'msg-error';
+        messageEl.textContent = 'Server not reachable.';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Create Account';
+      }
+    });
+  </script>
 </body>
-
 </html>

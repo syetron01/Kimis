@@ -1,174 +1,219 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <title>Kimis Login</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="KiMiS — Sign in to your Knowledge Intelligence Management System workspace.">
+  <title>Sign In — KiMiS</title>
+  <link rel="stylesheet" href="css/design-system.css">
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100dvh;
+      padding: 24px;
+      background: var(--bg-base);
+    }
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #2b5876, #4e4376);
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0;
-        }
+    .auth-brand {
+      text-align: center;
+      margin-bottom: 24px;
+    }
 
-        .login-card {
-            background: white;
-            padding: 40px;
-            border-radius: 10px;
-            width: 320px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            text-align: center;
-        }
+    .auth-brand-name {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
 
-        .login-card h2 {
-            margin-bottom: 20px;
-        }
+    .auth-brand-tagline {
+      font-size: 13px;
+      color: var(--text-tertiary);
+      margin-top: 4px;
+    }
 
-        input {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
+    .auth-card {
+      width: 100%;
+      max-width: 380px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: 10px;
+      padding: 32px;
+    }
 
-        button {
-            width: 100%;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            background: #4e4376;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-        }
+    .auth-card-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 24px;
+    }
 
-        button:hover {
-            background: #372d63;
-        }
+    /* Checkbox */
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
 
-        #message {
-            margin-top: 10px;
-            font-size: 14px;
-        }
+    .checkbox-row input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--primary);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
 
-        .checkbox-container {
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            margin: 10px 0;
-            font-size: 14px;
-        }
-        
-        .checkbox-container input {
-            width: auto;
-            margin: 0 10px 0 0;
-        }
+    .checkbox-row label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      user-select: none;
+    }
 
-        .links {
-            margin-top: 15px;
-            font-size: 14px;
-        }
+    /* Message */
+    #message {
+      font-size: 13px;
+      margin-top: 12px;
+      min-height: 20px;
+    }
 
-        .links a {
-            color: #4e4376;
-            text-decoration: none;
-        }
+    .msg-success { color: var(--success-text); }
+    .msg-error   { color: var(--danger-text); }
 
-        .links a:hover {
-            text-decoration: underline;
-        }
-    </style>
+    /* Footer */
+    .auth-footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 13px;
+      color: var(--text-tertiary);
+    }
 
+    .auth-footer a {
+      color: var(--text-accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .auth-footer a:hover { text-decoration: underline; }
+  </style>
 </head>
-
 <body>
 
-    <div class="login-card">
-        <h2>Kimis Login</h2>
+  <!-- Brand Header -->
+  <div class="auth-brand">
+    <div class="auth-brand-name">KiMiS</div>
+    <div class="auth-brand-tagline">Knowledge Intelligence Management System</div>
+  </div>
 
-        <form id="loginForm">
-            <input type="email" id="email" placeholder="Email" required>
-            <input type="password" id="password" placeholder="Password" required>
-            <div class="checkbox-container">
-                <input type="checkbox" id="rememberMe">
-                <label for="rememberMe">Remember me</label>
-            </div>
-            <button type="submit">Login</button>
-        </form>
+  <!-- Auth Card -->
+  <div class="auth-card">
+    <h1 class="auth-card-title">Sign In</h1>
 
-        <p id="message"></p>
+    <form id="loginForm" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="email">Email</label>
+        <input class="form-input" type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email">
+      </div>
 
-        <div class="links">
-            <a href="register.html">Don't have an account? Register here</a>
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <div class="input-wrapper">
+          <input class="form-input" type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password">
+          <button type="button" class="input-toggle" id="togglePassword" aria-label="Toggle password visibility">
+            <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
         </div>
-    </div>
+      </div>
 
-    <script>
-        // Check if already logged in
-        window.onload = function() {
-            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-            if (token) {
-                // If a token exists, smoothly redirect to dashboard
-                window.location.href = "dashboard.html";
-            }
-        };
+      <div class="checkbox-row">
+        <input type="checkbox" id="rememberMe" name="rememberMe">
+        <label for="rememberMe">Remember me</label>
+      </div>
 
-        document.getElementById("loginForm").addEventListener("submit", async function (e) {
-            e.preventDefault();
+      <button type="submit" class="btn btn-primary btn-full btn-lg" id="signInBtn">
+        Sign In
+      </button>
+    </form>
 
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
+    <p id="message"></p>
+  </div>
 
-            try {
+  <p class="auth-footer">
+    Don't have an account? <a href="register.html">Register</a>
+  </p>
 
-                const res = await fetch("http://localhost:8080/api/login", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ email, password })
-                });
+  <script>
+    // Toggle password visibility
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+    const eyeIcon = document.getElementById('eyeIcon');
 
-                const data = await res.json();
+    const eyeOpenSVG = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+    const eyeClosedSVG = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`;
 
-                if (res.ok) {
-                    document.getElementById("message").style.color = "green";
-                    document.getElementById("message").innerText = data.message;
-                    
-                    const rememberMe = document.getElementById("rememberMe").checked;
-                    
-                    if (data.token) {
-                        if (rememberMe) {
-                            localStorage.setItem("token", data.token); // Persist across sessions
-                        } else {
-                            sessionStorage.setItem("token", data.token); // Clear on tab close
-                        }
-                    }
+    togglePassword.addEventListener('click', () => {
+      const isPassword = passwordInput.type === 'password';
+      passwordInput.type = isPassword ? 'text' : 'password';
+      eyeIcon.innerHTML = isPassword ? eyeClosedSVG : eyeOpenSVG;
+    });
 
-                    // Redirect to dashboard
-                    setTimeout(() => {
-                        window.location.href = "dashboard.html";
-                    }, 500);
-                } else {
-                    document.getElementById("message").style.color = "red";
-                    document.getElementById("message").innerText = data.message;
-                }
+    // Login form submission
+    const messageEl = document.getElementById('message');
+    const signInBtn = document.getElementById('signInBtn');
 
-            } catch (error) {
-                document.getElementById("message").style.color = "red";
-                document.getElementById("message").innerText = "Server not reachable.";
-            }
+    // Redirect if already logged in
+    window.onload = () => {
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+      if (token) window.location.href = 'dashboard.html';
+    };
 
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email    = document.getElementById('email').value;
+      const password = passwordInput.value;
+
+      signInBtn.textContent = 'Signing in···';
+      signInBtn.disabled = true;
+      messageEl.className = '';
+      messageEl.textContent = '';
+
+      try {
+        const res  = await fetch('http://localhost:8080/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
         });
+        const data = await res.json();
 
-    </script>
-
+        if (res.ok) {
+          messageEl.className = 'msg-success';
+          messageEl.textContent = data.message;
+          const rememberMe = document.getElementById('rememberMe').checked;
+          if (data.token) {
+            if (rememberMe) localStorage.setItem('token', data.token);
+            else            sessionStorage.setItem('token', data.token);
+          }
+          setTimeout(() => window.location.href = 'dashboard.html', 500);
+        } else {
+          messageEl.className = 'msg-error';
+          messageEl.textContent = data.message || 'Invalid credentials.';
+          signInBtn.textContent = 'Sign In';
+          signInBtn.disabled = false;
+        }
+      } catch {
+        messageEl.className = 'msg-error';
+        messageEl.textContent = 'Server not reachable.';
+        signInBtn.textContent = 'Sign In';
+        signInBtn.disabled = false;
+      }
+    });
+  </script>
 </body>
-
 </html>

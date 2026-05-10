@@ -1,31 +1,26 @@
 /**
- * AI Retrieval Module Frontend Logic
+ * AI Retrieval Module — Frontend Logic (redesigned)
  */
 
-/**
- * Executes the AI search query
- */
 async function askAI() {
-    const queryInput = document.getElementById('aiQueryInput');
-    const resultsContainer = document.getElementById('aiResultsContainer');
-    const query = queryInput.value.trim();
+    const queryInput    = document.getElementById('aiQueryInput');
+    const resultsEl     = document.getElementById('aiResultsContainer');
+    const askBtn        = document.getElementById('aiAskBtn');
+    const query         = queryInput.value.trim();
 
     if (!query) return;
 
-    const workspaceId = currentWorkspaceId; // Assuming this global exists from workspaces.js
+    const workspaceId = currentWorkspaceId;
     if (!workspaceId) {
-        alert("Please select a workspace first.");
+        alert('Please select a workspace first.');
         return;
     }
 
-    // Show loading state
-    resultsContainer.style.display = 'block';
-    resultsContainer.innerHTML = `
-        <div class="ai-loading">
-            <div class="ai-loading-spinner"></div>
-            <p style="font-size:13px; color:#666; margin-top:10px;">Consulting KiMiS Knowledge Base...</p>
-        </div>
-    `;
+    // Loading state: animate button text
+    resultsEl.style.display = 'block';
+    resultsEl.innerHTML = `<div class="ai-loading"><span class="ai-spinner"></span>Consulting KiMiS Knowledge Base…</div>`;
+    askBtn.textContent  = '···';
+    askBtn.disabled     = true;
 
     try {
         const response = await fetch(`${API_BASE}/workspaces/${workspaceId}/ai/query`, {
@@ -37,101 +32,95 @@ async function askAI() {
             body: JSON.stringify({ query })
         });
 
-        // Always parse as text first, then try JSON (prevents SyntaxError on plain-text responses)
+        // Parse safely — never call .json() on plain-text error responses
         const text = await response.text();
         let data;
-        try {
-            data = JSON.parse(text);
-        } catch (_) {
-            throw new Error(`Server returned non-JSON response (status ${response.status})`);
+        try { data = JSON.parse(text); } catch (_) {
+            throw new Error(`Unexpected server response (${response.status})`);
         }
 
         if (response.status === 401 || response.status === 403) {
-            // Token expired or invalid — redirect to login
-            resultsContainer.innerHTML = `
-                <div class="ai-no-results" style="color:#e74c3c;">
-                    ⚠️ Session expired. <a href="login.html">Please log in again.</a>
-                </div>
-            `;
+            resultsEl.innerHTML = `
+                <div class="ai-no-results" style="color:var(--danger-text)">
+                    ⚠️ Session expired. <a href="login.html" style="color:var(--text-accent)">Please log in again.</a>
+                </div>`;
             return;
         }
 
-        if (!response.ok) {
-            throw new Error(data.message || "Failed to fetch AI results");
-        }
+        if (!response.ok) throw new Error(data.message || 'Query failed.');
 
-        renderAIResults(data.results);
+        renderAIResults(data.keywords || [], data.results || []);
     } catch (err) {
-        console.error("AI Assistant Error:", err);
-        resultsContainer.innerHTML = `
-            <div class="ai-no-results" style="color:#e74c3c;">
-                ⚠️ Error: ${err.message}
-            </div>
-        `;
+        console.error('AI Assistant Error:', err);
+        resultsEl.innerHTML = `<div class="ai-no-results" style="color:var(--danger-text)">⚠️ ${err.message}</div>`;
+    } finally {
+        askBtn.textContent = 'Ask AI';
+        askBtn.disabled    = false;
     }
 }
 
 /**
- * Renders the ranked results into the UI
- * @param {Array} results 
+ * Render ranked results using the new design-system classes.
+ * Highlights matched keywords in orange.
  */
-function renderAIResults(results) {
+function renderAIResults(keywords, results) {
     const container = document.getElementById('aiResultsContainer');
-    
-    if (!results || results.length === 0) {
-        container.innerHTML = `
-            <div class="ai-no-results">
-                No direct matches found. Try using different keywords.
-            </div>
-        `;
+
+    if (!results.length) {
+        container.innerHTML = `<div class="ai-no-results">No direct matches found. Try different keywords.</div>`;
         return;
     }
 
-    let html = `<div style="font-size:12px; color:#7f8c8d; margin-bottom:10px;">Found ${results.length} relevant items:</div>`;
+    let html = `<div style="font-size:12px;color:var(--text-tertiary);padding-top:12px;">${results.length} result${results.length > 1 ? 's' : ''} found</div>`;
 
     results.forEach(item => {
-        const typeLabel = item.type === 'article' ? 'Article' : 'Workflow Node';
-        
-        html += `
-            <div class="ai-result-item">
-                <div class="ai-result-header">
-                    <span class="ai-result-title">${item.title}</span>
-                    <span class="ai-result-type">${typeLabel}</span>
-                </div>
-                <div class="ai-result-snippet">
-                    ${item.snippet}
-                </div>
-        `;
+        const typeClass = item.type === 'article' ? 'badge-article' : 'badge-node';
+        const typeLabel = item.type === 'article' ? 'Article' : 'Node';
 
-        // If it's an article with a linked workflow, show the steps
-        if (item.workflow && item.workflow.steps && item.workflow.steps.length > 0) {
-            html += `
-                <div class="ai-workflow-box">
-                    <span class="ai-workflow-title">🗺️ Recommended Process Path:</span>
-                    <div class="ai-workflow-steps">
-                        ${item.workflow.steps.map((step, index) => `
-                            <span class="ai-step">${step}</span>
-                            ${index < item.workflow.steps.length - 1 ? '<span class="ai-step-arrow">→</span>' : ''}
-                        `).join('')}
-                    </div>
-                </div>
-            `;
+        // Highlight keyword matches in orange
+        let snippet = item.snippet || '';
+        keywords.forEach(kw => {
+            const re = new RegExp(`(${kw})`, 'gi');
+            snippet = snippet.replace(re, '<span class="keyword-match">$1</span>');
+        });
+
+        let workflowHtml = '';
+        if (item.workflow && item.workflow.steps && item.workflow.steps.length) {
+            const stepsHtml = item.workflow.steps.map((step, i) =>
+                `<span class="ai-step">${step}</span>${i < item.workflow.steps.length - 1 ? '<span class="ai-step-arrow">→</span>' : ''}`
+            ).join('');
+            workflowHtml = `
+                <div class="ai-workflow-steps" style="margin-top:8px;">
+                    <span style="font-size:11px;color:var(--text-tertiary);margin-right:4px;">Path:</span>
+                    ${stepsHtml}
+                </div>`;
         }
 
-        html += `</div>`;
+        html += `
+            <div class="ai-result-row">
+                <span class="badge ${typeClass}" style="flex-shrink:0;margin-top:2px;">${typeLabel}</span>
+                <div class="ai-result-body">
+                    <div class="ai-result-title">${item.title}</div>
+                    <div class="ai-result-snippet">${snippet}</div>
+                    ${workflowHtml}
+                </div>
+                <div class="ai-result-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M7 17L17 7"/><path d="M7 7h10v10"/>
+                    </svg>
+                </div>
+            </div>`;
     });
 
     container.innerHTML = html;
 }
 
-// Add event listener for Enter key on the input
+// Enter key support
 document.addEventListener('DOMContentLoaded', () => {
     const input = document.getElementById('aiQueryInput');
     if (input) {
         input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                askAI();
-            }
+            if (e.key === 'Enter') askAI();
         });
     }
 });

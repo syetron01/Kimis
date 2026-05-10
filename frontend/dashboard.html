@@ -1,312 +1,424 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <title>Kimis Dashboard</title>
-    <!-- Marked.js for Markdown parsing -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <!-- Dashboard Styles -->
-    <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="css/ai.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="KiMiS — Your Knowledge Intelligence Management System dashboard.">
+  <title>Dashboard — KiMiS</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/ai.css">
 </head>
-
 <body>
 
-    <div class="dashboard-container">
-        <!-- Left Panel: User Profile -->
-        <div class="dashboard-card">
-            <h2 id="welcomeMsg">Welcome to the Dashboard!</h2>
+<!-- ══════════════════════════════════════════════════════
+     TOP NAVBAR
+══════════════════════════════════════════════════════ -->
+<header class="topnav">
+  <div class="topnav-brand">
+    <span class="topnav-logo">KiMiS</span>
+    <span class="topnav-tagline">Knowledge Intelligence Management System</span>
+  </div>
 
-            <img id="displayImg" src="https://via.placeholder.com/100" alt="Profile Picture" class="profile-img">
+  <nav class="topnav-links">
+    <a class="topnav-link active" href="#" id="navWorkspaces" onclick="showSection('workspaces')">Workspaces</a>
+    <a class="topnav-link" href="#" id="navProfile" onclick="showSection('profile')">Profile</a>
+  </nav>
 
-            <div id="userInfo">
-                <div class="info-row"><strong>First Name:</strong> <span id="userFirstName"></span></div>
-                <div class="info-row"><strong>Last Name:</strong> <span id="userLastName"></span></div>
-                <div class="info-row"><strong>Username:</strong> <span id="userUsername"></span></div>
-                <div class="info-row"><strong>Email:</strong> <span id="userEmail"></span></div>
-                <div class="info-row"><strong>Role:</strong> <span id="userRole"></span></div>
-                <div class="info-row"><strong>Job Title:</strong> <span id="userJobTitle"></span></div>
-                <div class="info-row"><strong>Department:</strong> <span id="userDepartment"></span></div>
-                <button id="editBtn" class="edit-mode-btn">Edit Profile</button>
-            </div>
+  <div class="topnav-user">
+    <div class="nav-avatar" id="navAvatarEl">
+      <img id="displayImg" src="" alt="Profile" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:9999px;">
+      <span id="avatarInitials"></span>
+    </div>
+    <div class="nav-user-meta">
+      <span class="nav-user-name" id="userFullName">Loading…</span>
+      <span class="nav-user-role"><span id="userRole" class="badge"></span></span>
+    </div>
+    <button id="logoutBtn" class="btn btn-danger btn-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Logout
+    </button>
+  </div>
+</header>
 
-            <form id="editForm">
-                <label>First Name (required):</label>
-                <input type="text" id="editFirstName" class="edit-input" required>
+<!-- ══════════════════════════════════════════════════════
+     MAIN CONTENT AREA
+══════════════════════════════════════════════════════ -->
+<main class="page-body">
 
-                <label>Last Name:</label>
-                <input type="text" id="editLastName" class="edit-input">
-
-                <label>Username (required):</label>
-                <input type="text" id="editUsername" class="edit-input" required>
-
-                <label>Job Title:</label>
-                <input type="text" id="editJobTitle" class="edit-input">
-
-                <label>Department:</label>
-                <input type="text" id="editDepartment" class="edit-input">
-
-                <label>Profile Picture:</label>
-                <input type="file" id="editProfilePic" class="edit-input" accept="image/*">
-
-                <div class="btn-group">
-                    <button type="submit" class="save-btn">Save Changes</button>
-                    <button type="button" id="cancelBtn" class="cancel-btn">Cancel</button>
-                </div>
-            </form>
-
-            <div id="adminPanel">
-                <h3>Admin Panel 🛡️</h3>
-                <p>You can see this because your role is <strong>admin</strong>.</p>
-                <button id="fetchAdminDataBtn" class="admin-btn">Fetch Sensitive Admin Data</button>
-                <div id="adminResult">Waiting for request...</div>
-            </div>
-
-            <button id="logoutBtn">Logout</button>
-        </div>
-
-        <!-- Right Panel: Workspaces -->
-        <div class="workspaces-card" id="workspacesSection">
-            <!-- Main Workspaces List View -->
-            <div id="workspacesListView">
-                <h2>My Workspaces</h2>
-
-                <form id="createWorkspaceForm" class="form-group">
-                    <input type="text" id="newWsName" placeholder="Workspace Name" required>
-                    <input type="text" id="newWsDesc" placeholder="Description (Optional)">
-                    <button type="submit">Create</button>
-                </form>
-
-                <div id="workspacesContainer">
-                    <p>Loading workspaces...</p>
-                </div>
-            </div>
-
-            <!-- Single Workspace Manager View -->
-            <div id="workspaceManagerView" style="display: none;">
-                <div class="manager-header">
-                    <div>
-                        <h2 id="managerWsName" style="margin-bottom:0;">Workspace</h2>
-                        <span id="managerWsRole" style="color:#7f8c8d;font-size:14px;"></span>
-                    </div>
-                    <button type="button" id="backToWsListBtn" class="back-btn">Back to List</button>
-                </div>
-
-                <!-- TABS -->
-                <div class="tabs-header">
-                    <button type="button" class="tab-btn active" data-tab="members" onclick="switchWsTab('members')">Members</button>
-                    <button type="button" class="tab-btn" data-tab="articles" onclick="switchWsTab('articles')">Articles</button>
-                    <button type="button" class="tab-btn" data-tab="workflows" onclick="switchWsTab('workflows')">Workflows</button>
-                </div>
-
-                <!-- AI ASSISTANT -->
-                <div class="ai-assistant-container">
-                    <h4><span>🔍</span> AI Knowledge Assistant</h4>
-                    <div class="ai-search-box">
-                        <input type="text" id="aiQueryInput" placeholder="Ask a question (e.g. 'How to reset password?')">
-                        <button type="button" class="ai-ask-btn" onclick="askAI()">Ask AI</button>
-                    </div>
-                    <div id="aiResultsContainer" style="display:none;"></div>
-                </div>
-
-                <!-- MEMBERS TAB -->
-                <div id="tab-members" class="tab-content active">
-                    <form id="addMemberForm" class="form-group" style="display:none;">
-                        <input type="email" id="newMemberEmail" placeholder="User Email" required>
-                        <select id="newMemberRole">
-                            <option value="Viewer">Viewer</option>
-                            <option value="Editor">Editor</option>
-                            <option value="Admin">Admin</option>
-                        </select>
-                        <button type="submit">Add Member</button>
-                    </form>
-
-                    <table class="members-table">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Role</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="membersTableBody"></tbody>
-                    </table>
-                </div>
-
-                <!-- ARTICLES TAB -->
-                <div id="tab-articles" class="tab-content">
-                    <div id="articlesListView">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                            <h3 style="margin:0;">Knowledge Base</h3>
-                            <button id="createArticleBtn" class="manage-btn" style="display:none;"
-                                onclick="openArticleEditor(null)">+ New Article</button>
-                        </div>
-                        <div id="articlesListContainer">Loading articles...</div>
-                    </div>
-
-                    <div id="articleEditorView" class="article-editor" style="display: none;">
-                        <h3 id="editorTitleMode">Create Article</h3>
-
-                        <!-- Reading Mode View -->
-                        <div id="articleReadMode" style="display:none; margin-bottom:20px;">
-                            <h2 id="readArticleTitle" style="margin-bottom:5px;"></h2>
-                            <div id="readArticleTags"
-                                style="margin-bottom:15px; font-size:12px; color:#3498db; font-weight:bold;"></div>
-                            <div id="readArticleContent" class="markdown-preview"></div>
-                            <p class="article-meta">Last updated by <span id="readArticleAuthor"></span></p>
-
-                            <div class="btn-group" id="readModeActions" style="margin-top:20px; display:none;">
-                                <button type="button" class="manage-btn" onclick="toggleArticleEditMode(true)">Edit Content</button>
-                                <button type="button" class="remove-btn" onclick="archiveArticle()">Archive</button>
-                            </div>
-                        </div>
-
-                        <!-- Editing Mode Form -->
-                        <form id="articleForm" style="display:block;">
-                            <input type="hidden" id="editArticleId" value="">
-
-                            <label>Title:</label>
-                            <input type="text" id="editArticleTitle" class="edit-input" required>
-
-                            <label>Tags (comma separated):</label>
-                            <input type="text" id="editArticleTags" class="edit-input"
-                                placeholder="e.g. tech, setup, guide">
-
-                            <label>Content (Markdown supported):</label>
-                            <textarea id="editArticleContent" required
-                                placeholder="# Title\n\nWrite your content here..."></textarea>
-
-                            <div style="text-align:right; font-size:12px; margin-bottom:5px;">
-                                <a href="javascript:void(0)" onclick="previewMarkdown()">Preview Markdown</a>
-                            </div>
-                            <div id="markdownPreviewBox" class="markdown-preview" style="display:none;"></div>
-
-                            <div class="btn-group">
-                                <button type="submit" class="save-btn">Save Article</button>
-                            </div>
-                        </form>
-
-                        <button type="button" class="cancel-btn" style="width:auto; margin-top:15px;"
-                            onclick="closeArticleEditor()">Back</button>
-                    </div>
-                </div>
-
-                <!-- WORKFLOWS TAB -->
-                <div id="tab-workflows" class="tab-content">
-                    <div id="wfListView">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                            <h3 style="margin:0;">Visual Workflows</h3>
-                            <button id="createWorkflowBtn" class="manage-btn" style="display:none;"
-                                onclick="showCreateWorkflowForm()">+ New Workflow</button>
-                        </div>
-
-                        <form id="createWorkflowFormUI" class="form-group"
-                            style="display:none; background:#f4f6f8; padding:15px; border-radius:5px;">
-                            <input type="text" id="newWfTitle" placeholder="Workflow Title" required>
-                            <input type="text" id="newWfDesc" placeholder="Description">
-                            <button type="submit">Create</button>
-                            <button type="button" class="cancel-btn" style="margin-top:0; padding:8px 15px;"
-                                onclick="hideCreateWorkflowForm()">X</button>
-                        </form>
-
-                        <div id="workflowsListContainer">Loading workflows...</div>
-                    </div>
-
-                    <div id="wfDetailView" style="display:none;">
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:15px;">
-                            <div>
-                                <h3 id="viewWfTitle" style="margin:0;">Workflow Title</h3>
-                                <p id="viewWfDesc" style="font-size:14px; color:#666; margin:5px 0 0 0;"></p>
-                            </div>
-                            <div>
-                                <button type="button" class="cancel-btn" style="width:auto; margin:0;"
-                                    onclick="closeWorkflowDetail()">Back to List</button>
-                                <button id="deleteWfBtn" type="button" class="remove-btn"
-                                    style="width:auto; display:none; margin-left:10px;"
-                                    onclick="deleteWorkflow()">Delete WF</button>
-                            </div>
-                        </div>
-                        <hr>
-
-                        <!-- Nodes Section -->
-                        <p class="section-label">Nodes</p>
-                        <div id="nodesListContainer"></div>
-
-                        <!-- Edges Section -->
-                        <p class="section-label">Connections (Edges)</p>
-                        <div id="edgesListContainer"></div>
-
-                        <!-- Add Node Form -->
-                        <div id="addNodeContainer"
-                            style="display:none; margin-top:30px; border-top: 2px dashed #eee; padding-top:20px;">
-                            <h4>Add Node</h4>
-                            <form id="addNodeForm" style="background:#f9f9f9; padding:20px; border-radius:5px;">
-                                <div style="display:flex; gap:15px; margin-bottom:15px;">
-                                    <div style="flex:1;">
-                                        <label>Title:</label>
-                                        <input type="text" id="newNodeTitle" class="edit-input" required>
-                                    </div>
-                                    <div style="flex:1;">
-                                        <label>Type:</label>
-                                        <select id="newNodeType" class="edit-input">
-                                            <option value="action">Action</option>
-                                            <option value="decision">Decision</option>
-                                            <option value="note">Note</option>
-                                            <option value="end">End</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <label>Description:</label>
-                                <textarea id="newNodeDesc" class="edit-input" style="height:60px;"></textarea>
-                                <div style="display:flex; gap:15px; margin-bottom:15px;">
-                                    <div style="flex:1;">
-                                        <label>Linked Article:</label>
-                                        <select id="newNodeArticle" class="edit-input">
-                                            <option value="">None</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <button type="submit" class="save-btn">Add Node</button>
-                            </form>
-
-                            <h4 style="margin-top:25px;">Connect Nodes (Add Edge)</h4>
-                            <form id="addEdgeForm" style="background:#f9f9f9; padding:20px; border-radius:5px;">
-                                <div style="display:flex; gap:15px; margin-bottom:15px;">
-                                    <div style="flex:1;">
-                                        <label>From Node:</label>
-                                        <select id="edgeFromNode" class="edit-input" required>
-                                            <option value="">Select...</option>
-                                        </select>
-                                    </div>
-                                    <div style="flex:1;">
-                                        <label>To Node:</label>
-                                        <select id="edgeToNode" class="edit-input" required>
-                                            <option value="">Select...</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <label>Condition (for decision branching):</label>
-                                <input type="text" id="edgeCondition" class="edit-input"
-                                    placeholder="e.g. Yes, No, Approved">
-                                <button type="submit" class="save-btn">Connect</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <!-- ── PROFILE SECTION ── -->
+  <section id="sectionProfile" class="content-section" style="display:none;">
+    <div class="section-header">
+      <h2 class="page-heading">My Profile</h2>
     </div>
 
-    <!-- JavaScript Modules (order matters: auth first, then profile, then features) -->
-    <script src="js/auth.js"></script>
-    <script src="js/profile.js"></script>
-    <script src="js/workspaces.js"></script>
-    <script src="js/articles.js"></script>
-    <script src="js/workflows.js"></script>
-    <script src="js/ai.js"></script>
+    <div class="profile-layout">
+      <!-- Profile card -->
+      <div class="profile-card card">
+        <div class="profile-card-top">
+          <div class="avatar-lg" id="avatarElLarge">
+            <img id="displayImgLarge" src="" alt="Profile" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:9999px;">
+            <span id="avatarInitialsLarge"></span>
+          </div>
+          <div>
+            <div class="profile-name" id="profileFullName">—</div>
+            <div class="profile-username" id="profileUsername">—</div>
+          </div>
+        </div>
+
+        <div id="userInfo">
+          <div class="meta-grid">
+            <div class="meta-field">
+              <div class="meta-field-label">Email</div>
+              <div class="meta-field-value" id="userEmail">—</div>
+            </div>
+            <div class="meta-field">
+              <div class="meta-field-label">Job Title</div>
+              <div class="meta-field-value" id="userJobTitle">—</div>
+            </div>
+            <div class="meta-field">
+              <div class="meta-field-label">Department</div>
+              <div class="meta-field-value" id="userDepartment">—</div>
+            </div>
+            <div class="meta-field">
+              <div class="meta-field-label">System Role</div>
+              <div class="meta-field-value" id="userRoleDetail">—</div>
+            </div>
+          </div>
+          <button id="editBtn" class="btn btn-ghost" style="margin-top:20px;width:100%;" onclick="showEditForm()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Edit Profile
+          </button>
+        </div>
+
+        <!-- Edit Form -->
+        <form id="editForm" style="display:none;">
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="editFirstName">First Name</label>
+              <input class="form-input" type="text" id="editFirstName" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="editLastName">Last Name</label>
+              <input class="form-input" type="text" id="editLastName">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="editUsername">Username</label>
+            <input class="form-input" type="text" id="editUsername" required>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="editJobTitle">Job Title</label>
+              <input class="form-input" type="text" id="editJobTitle">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="editDepartment">Department</label>
+              <input class="form-input" type="text" id="editDepartment">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="editProfilePic">Profile Picture</label>
+            <input class="form-input" type="file" id="editProfilePic" accept="image/*" style="padding-top:7px;">
+          </div>
+          <div class="form-row-actions">
+            <button type="submit" class="btn btn-primary" style="flex:1;">Save Changes</button>
+            <button type="button" class="btn btn-ghost" onclick="cancelEdit()">Cancel</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Admin panel (if applicable) -->
+      <div id="adminPanel" class="admin-panel" style="display:none;">
+        <h3>🛡️ Admin Panel</h3>
+        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Global admin access is enabled.</p>
+        <button id="fetchAdminDataBtn" class="btn btn-ghost btn-sm">Fetch Admin Data</button>
+        <div id="adminResult" class="admin-result">Awaiting request…</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── WORKSPACES SECTION ── -->
+  <section id="sectionWorkspaces" class="content-section">
+
+    <!-- List View -->
+    <div id="workspacesListView">
+      <div class="section-header">
+        <h2 class="page-heading">My Workspaces</h2>
+        <button class="btn btn-ghost btn-sm" onclick="toggleCreateWs()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New Workspace
+        </button>
+      </div>
+
+      <form id="createWorkspaceForm" class="create-ws-form" style="display:none;">
+        <input type="text" id="newWsName" class="form-input" placeholder="Workspace name…" required>
+        <input type="text" id="newWsDesc" class="form-input" placeholder="Description (optional)">
+        <button type="submit" class="btn btn-primary btn-sm">Create</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="toggleCreateWs()">Cancel</button>
+      </form>
+
+      <div id="workspacesContainer" class="workspace-list">
+        <p style="color:var(--text-tertiary);font-size:14px;">Loading workspaces…</p>
+      </div>
+    </div>
+
+    <!-- Workspace Manager View -->
+    <div id="workspaceManagerView" style="display:none;">
+      <div class="section-header">
+        <div>
+          <h2 class="page-heading" id="managerWsName">Workspace</h2>
+          <div class="page-subheading" id="managerWsRole"></div>
+        </div>
+        <button type="button" id="backToWsListBtn" class="btn btn-ghost btn-sm">← Back to Workspaces</button>
+      </div>
+
+      <!-- AI Knowledge Assistant -->
+      <div class="ai-section">
+        <p class="section-label">AI Knowledge Assistant</p>
+        <div class="ai-container card">
+          <div class="ai-search-row">
+            <input type="text" class="form-input" id="aiQueryInput" placeholder="Ask a question across articles and workflows…">
+            <button type="button" class="ai-ask-btn" id="aiAskBtn" onclick="askAI()">Ask AI</button>
+          </div>
+          <div id="aiResultsContainer"></div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs-header" role="tablist">
+        <button type="button" class="tab-btn active" role="tab" aria-selected="true"  data-tab="members"   onclick="switchWsTab('members')">Members</button>
+        <button type="button" class="tab-btn"        role="tab" aria-selected="false" data-tab="articles"  onclick="switchWsTab('articles')">Articles</button>
+        <button type="button" class="tab-btn"        role="tab" aria-selected="false" data-tab="workflows" onclick="switchWsTab('workflows')">Workflows</button>
+      </div>
+
+      <!-- MEMBERS TAB -->
+      <div id="tab-members" class="tab-content active" role="tabpanel">
+        <form id="addMemberForm" class="create-ws-form" style="display:none;margin-bottom:16px;">
+          <input type="email" id="newMemberEmail" class="form-input" placeholder="User email…" required>
+          <select id="newMemberRole" class="form-input" style="width:140px;flex:none;">
+            <option value="Viewer">Viewer</option>
+            <option value="Editor">Editor</option>
+            <option value="Admin">Admin</option>
+          </select>
+          <button type="submit" class="btn btn-primary btn-sm">Add Member</button>
+        </form>
+        <table class="members-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="membersTableBody"></tbody>
+        </table>
+      </div>
+
+      <!-- ARTICLES TAB -->
+      <div id="tab-articles" class="tab-content" role="tabpanel">
+        <div id="articlesListView">
+          <div class="tab-section-header">
+            <span class="tab-section-title">Knowledge Base</span>
+            <button id="createArticleBtn" class="btn btn-ghost btn-sm" style="display:none;" onclick="openArticleEditor(null)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+              New Article
+            </button>
+          </div>
+          <div id="articlesListContainer">Loading articles…</div>
+        </div>
+
+        <div id="articleEditorView" style="display:none;">
+          <div class="tab-section-header">
+            <button type="button" class="btn btn-ghost btn-sm" onclick="closeArticleEditor()">← Back to Articles</button>
+            <span id="editorTitleMode" style="font-weight:600;font-size:15px;color:var(--text-primary);"></span>
+            <div style="flex:1;"></div>
+            <button type="button" class="btn btn-primary btn-sm" id="saveArticleBtn" style="display:none;" onclick="saveArticle()">Save</button>
+          </div>
+          <input type="hidden" id="editArticleId">
+          <input type="hidden" id="editArticleTags">
+          <div id="articleReadMode" style="display:none;">
+            <!-- ── Article Hero Header ── -->
+            <div class="article-view-header">
+              <div class="article-view-header-inner">
+                <h1 id="readArticleTitle" class="article-view-title"></h1>
+                <div id="readArticleTags" class="article-view-tags"></div>
+              </div>
+              <div class="article-view-actions">
+                <button type="button" class="btn btn-ghost btn-sm" onclick="toggleArticleDetails()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                  Details
+                </button>
+                <div id="readModeActions" style="display:none; gap:8px;">
+                  <button type="button" class="btn btn-ghost btn-sm" onclick="toggleArticleEditMode(true)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    Edit
+                  </button>
+                  <button type="button" class="btn btn-danger btn-sm remove-btn" onclick="deleteArticle()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+            <!-- ── Article Meta Strip ── -->
+            <div id="articleDetailsPanel" class="article-view-meta" style="display:none;">
+              <div class="article-view-author">
+                <div class="article-view-avatar" id="readArticleAvatarEl">?</div>
+                <div>
+                  <div class="article-view-author-label">Last updated by</div>
+                  <div class="article-view-author-name" id="readArticleAuthor"></div>
+                </div>
+              </div>
+              <div class="article-view-meta-divider"></div>
+              <div class="article-view-date-block">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span id="readArticleDate" class="article-view-date">—</span>
+              </div>
+            </div>
+            <!-- ── Article Content Body ── -->
+            <div class="article-view-body">
+              <div id="readArticleContent" class="markdown-preview article-view-content"></div>
+            </div>
+          </div>
+          <form id="articleForm" style="display:none;">
+            <div class="article-edit-header">
+              <input type="text" class="article-edit-title-input" id="editArticleTitle" placeholder="Article title…" required>
+            </div>
+            <div class="article-edit-body">
+              <textarea id="editArticleContent" aria-label="Article content editor" aria-multiline="true" placeholder="# Write your content here…"></textarea>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- WORKFLOWS TAB -->
+      <div id="tab-workflows" class="tab-content" role="tabpanel">
+        <div id="wfListView">
+          <div class="tab-section-header">
+            <span class="tab-section-title">Visual Workflows</span>
+            <button id="createWorkflowBtn" class="btn btn-ghost btn-sm" style="display:none;" onclick="showCreateWorkflowForm()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              New Workflow
+            </button>
+          </div>
+          <form id="createWorkflowFormUI" class="create-ws-form" style="display:none;margin-bottom:16px;">
+            <input type="text" id="newWfTitle" class="form-input" placeholder="Workflow title…" required>
+            <input type="text" id="newWfDesc" class="form-input" placeholder="Description">
+            <button type="submit" class="btn btn-primary btn-sm">Create</button>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="hideCreateWorkflowForm()">Cancel</button>
+          </form>
+          <div id="workflowsListContainer" class="workflow-list">Loading workflows…</div>
+        </div>
+
+        <div id="wfDetailView" style="display:none;">
+          <div class="tab-section-header">
+            <div>
+              <div class="wf-title" id="viewWfTitle"></div>
+              <div class="wf-desc" id="viewWfDesc"></div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button type="button" class="btn btn-ghost btn-sm" onclick="closeWorkflowDetail()">← Back to List</button>
+              <button id="deleteWfBtn" type="button" class="btn btn-danger btn-sm" style="display:none;" onclick="deleteWorkflow()">Delete</button>
+            </div>
+          </div>
+
+          <!-- FigJam canvas renders here -->
+          <div id="wfCanvasContainer"></div>
+
+          <!-- Add Node & Edge Forms -->
+          <div id="addNodeContainer" class="add-node-section">
+            <p class="section-label">Add Node</p>
+            <form id="addNodeForm" class="card" style="padding:20px;margin-bottom:20px;">
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">Title</label>
+                  <input type="text" id="newNodeTitle" class="form-input" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Type</label>
+                  <select id="newNodeType" class="form-input">
+                    <option value="action">Action</option>
+                    <option value="decision">Decision</option>
+                    <option value="note">Note</option>
+                    <option value="end">End</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Description</label>
+                <input type="text" id="newNodeDesc" class="form-input">
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Linked Article</label>
+                <select id="newNodeArticle" class="form-input"><option value="">None</option></select>
+              </div>
+              <button type="submit" class="btn btn-primary" style="margin-top:16px;">Add Node</button>
+            </form>
+
+            <p class="section-label">Connect Nodes</p>
+            <form id="addEdgeForm" class="card" style="padding:20px;">
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">From Node</label>
+                  <select id="edgeFromNode" class="form-input" required><option value="">Select…</option></select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">To Node</label>
+                  <select id="edgeToNode" class="form-input" required><option value="">Select…</option></select>
+                </div>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Condition</label>
+                <input type="text" id="edgeCondition" class="form-input" placeholder="e.g. Yes, No, Approved">
+              </div>
+              <button type="submit" class="btn btn-primary" style="margin-top:16px;">Connect</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main><!-- /.page-body -->
+
+<script src="js/auth.js"></script>
+<script src="js/profile.js"></script>
+<script src="js/workspaces.js"></script>
+<script src="js/articles.js"></script>
+<script src="js/workflow-canvas.js"></script>
+<script src="js/workflows.js"></script>
+<script src="js/ai.js"></script>
+
+<script>
+  /* ── Section Switcher ─────────────────────────────── */
+  function showSection(name) {
+    document.getElementById('sectionWorkspaces').style.display = name === 'workspaces' ? 'block' : 'none';
+    document.getElementById('sectionProfile').style.display    = name === 'profile'    ? 'block' : 'none';
+    document.querySelectorAll('.topnav-link').forEach(l => l.classList.remove('active'));
+    document.getElementById(name === 'workspaces' ? 'navWorkspaces' : 'navProfile').classList.add('active');
+    return false;
+  }
+
+  /* ── Create workspace form toggle ─────────────────── */
+  function toggleCreateWs() {
+    const f = document.getElementById('createWorkspaceForm');
+    f.style.display = f.style.display === 'none' ? 'flex' : 'none';
+  }
+
+  /* ── Edit profile helpers ──────────────────────────── */
+  function showEditForm() {
+    document.getElementById('userInfo').style.display  = 'none';
+    document.getElementById('editForm').style.display  = 'block';
+  }
+  function cancelEdit() {
+    document.getElementById('userInfo').style.display  = 'block';
+    document.getElementById('editForm').style.display  = 'none';
+  }
+
+
+</script>
 
 </body>
-
 </html>

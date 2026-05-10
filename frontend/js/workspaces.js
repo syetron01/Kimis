@@ -16,20 +16,24 @@ async function loadWorkspaces() {
             const workspaces = await res.json();
             const container = document.getElementById("workspacesContainer");
 
-            if (workspaces.length === 0) {
-                container.innerHTML = "<p>You don't belong to any workspaces yet.</p>";
-                return;
-            }
+            container.innerHTML = workspaces.map(ws => {
+                const roleClass = {
+                    'Owner': 'badge-owner', 'Admin': 'badge-admin',
+                    'Editor': 'badge-editor', 'Viewer': 'badge-viewer'
+                }[ws.user_role] || 'badge-viewer';
 
-            container.innerHTML = workspaces.map(ws => `
-                <div class="workspace-item">
-                    <div class="workspace-info">
-                        <h4>${ws.name} <span style="font-size:12px; font-weight:normal; color:#888;">(${ws.user_role})</span></h4>
-                        <p>${ws.description || 'No description'}</p>
-                    </div>
-                    <button class="manage-btn" data-id="${ws.id}" data-role="${ws.user_role}" data-name="${ws.name}">Manage</button>
-                </div>
-            `).join('');
+                return `
+                    <div class="workspace-card" data-id="${ws.id}" data-role="${ws.user_role}" data-name="${ws.name}">
+                        <div class="workspace-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="6" height="6" rx="1"/><rect x="16" y="3" width="6" height="6" rx="1"/><rect x="9" y="3" width="6" height="6" rx="1"/><rect x="2" y="11" width="6" height="10" rx="1"/><rect x="9" y="11" width="13" height="10" rx="1"/></svg>
+                        </div>
+                        <div style="flex:1;min-width:0;">
+                            <div class="workspace-name">${ws.name}</div>
+                            <div class="workspace-meta">${ws.description || 'No description'}</div>
+                        </div>
+                        <span class="badge ${roleClass} workspace-role">${ws.user_role}</span>
+                    </div>`;
+            }).join('');
         }
     } catch (err) {
         console.error("Error loading workspaces", err);
@@ -121,12 +125,13 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Delegated click listener for dynamic "Manage" buttons
+    // Delegated click listener for dynamic workspace cards
     document.getElementById("workspacesContainer")?.addEventListener("click", (e) => {
-        if (e.target.classList.contains("manage-btn")) {
-            const id = e.target.getAttribute("data-id");
-            const role = e.target.getAttribute("data-role");
-            const name = e.target.getAttribute("data-name");
+        const card = e.target.closest(".workspace-card");
+        if (card) {
+            const id   = card.getAttribute("data-id");
+            const role = card.getAttribute("data-role");
+            const name = card.getAttribute("data-name");
             manageWorkspace(id, role, name);
         }
     });
@@ -152,35 +157,44 @@ async function loadMembers() {
                 const canEdit = (currentUserRole === 'Owner' && m.role !== 'Owner') ||
                     (currentUserRole === 'Admin' && m.role !== 'Owner' && m.role !== 'Admin');
 
+                const initials = [m.first_name?.[0], m.last_name?.[0]].filter(Boolean).join('').toUpperCase() || '?';
+                const roleClass = {
+                    'Owner': 'badge-owner', 'Admin': 'badge-admin',
+                    'Editor': 'badge-editor', 'Viewer': 'badge-viewer'
+                }[m.role] || 'badge-viewer';
+
                 let actionHtml = '';
                 if (canEdit || currentUserRole === 'Owner') {
                     actionHtml = `
                         <select class="action-select" onchange="updateMemberRole(${m.id}, this.value)">
-                            <option value="Viewer" ${m.role === 'Viewer' ? 'selected' : ''}>Viewer</option>
-                            <option value="Editor" ${m.role === 'Editor' ? 'selected' : ''}>Editor</option>
-                            <option value="Admin" ${m.role === 'Admin' ? 'selected' : ''}>Admin</option>
+                            <option value="Viewer"  ${m.role === 'Viewer'  ? 'selected' : ''}>Viewer</option>
+                            <option value="Editor"  ${m.role === 'Editor'  ? 'selected' : ''}>Editor</option>
+                            <option value="Admin"   ${m.role === 'Admin'   ? 'selected' : ''}>Admin</option>
                             ${currentUserRole === 'Owner' ? `<option value="Owner" ${m.role === 'Owner' ? 'selected' : ''}>Owner</option>` : ''}
                         </select>
-                        <button class="remove-btn" onclick="removeMember(${m.id})">Remove</button>
+                        <button class="btn btn-danger btn-sm" onclick="removeMember(${m.id})" style="margin:0;">Remove</button>
                     `;
                 } else {
-                    actionHtml = `<span style="color:#999;font-size:12px;">No access</span>`;
+                    actionHtml = `<span style="color:var(--text-tertiary);font-size:12px;">No access</span>`;
                 }
 
-                if (m.role === 'Owner') {
-                    if (currentUserRole !== 'Owner') {
-                        actionHtml = '';
-                    }
-                }
+                if (m.role === 'Owner' && currentUserRole !== 'Owner') actionHtml = '';
 
                 return `
                     <tr>
-                        <td>${m.first_name} ${m.last_name || ''}</td>
-                        <td>${m.email}</td>
-                        <td>${m.role}</td>
+                        <td>
+                            <div class="member-name-cell">
+                                <div class="member-avatar">${initials}</div>
+                                <div>
+                                    <div class="member-name">${m.first_name} ${m.last_name || ''}</div>
+                                    <div class="member-email">${m.email}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="color:var(--text-secondary);font-size:13px;">${m.email}</td>
+                        <td><span class="badge ${roleClass}">${m.role}</span></td>
                         <td>${actionHtml}</td>
-                    </tr>
-                `;
+                    </tr>`;
             }).join('');
         }
     } catch (err) {

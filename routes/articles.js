@@ -146,13 +146,13 @@ router.put("/:articleId", authenticateToken, requireWorkspaceRole('Editor'), asy
     }
 });
 
-// DELETE /api/workspaces/:workspaceId/articles/:articleId — Archive Article
+// DELETE /api/workspaces/:workspaceId/articles/:articleId — Delete Article
 router.delete("/:articleId", authenticateToken, requireWorkspaceRole('Admin'), async (req, res) => {
     const { workspaceId, articleId } = req.params;
 
     try {
         const result = await pool.query(
-            "UPDATE articles SET is_archived = TRUE WHERE id = $1 AND workspace_id = $2 RETURNING id",
+            "DELETE FROM articles WHERE id = $1 AND workspace_id = $2 RETURNING id",
             [articleId, workspaceId]
         );
 
@@ -160,7 +160,7 @@ router.delete("/:articleId", authenticateToken, requireWorkspaceRole('Admin'), a
             return res.status(404).json({ message: "Article not found in this workspace" });
         }
 
-        res.json({ message: "Article archived successfully" });
+        res.json({ message: "Article deleted successfully" });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Server error" });
