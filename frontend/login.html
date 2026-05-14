@@ -6,6 +6,10 @@
   <meta name="description" content="KiMiS — Sign in to your Knowledge Intelligence Management System workspace.">
   <title>Sign In — KiMiS</title>
   <link rel="stylesheet" href="css/design-system.css">
+  <script>
+    const savedTheme = localStorage.getItem("theme") || "dark";
+    document.documentElement.setAttribute("data-theme", savedTheme);
+  </script>
   <style>
     body {
       display: flex;

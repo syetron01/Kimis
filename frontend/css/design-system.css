@@ -52,6 +52,53 @@
   --info-text:      #60A5FA;
 }
 
+/* ── Light Theme Overrides ──────────────────────────────── */
+[data-theme="light"] {
+  /* Surfaces */
+  --bg-base:        #F4F4F5;
+  --bg-surface:     #FFFFFF;
+  --bg-elevated:    #FAFAFA;
+  --bg-sunken:      #E4E4E7;
+
+  /* Primary */
+  --primary:        #EA580C;
+  --primary-hover:  #C2410C;
+  --primary-muted:  #FFEDD5;
+  --primary-text:   #9A3412;
+
+  /* Borders */
+  --border-subtle:  rgba(0,0,0,0.06);
+  --border-default: rgba(0,0,0,0.12);
+  --border-strong:  rgba(0,0,0,0.24);
+  --border-primary: #EA580C;
+
+  /* Text */
+  --text-primary:   #18181B;
+  --text-secondary: #52525B;
+  --text-tertiary:  #71717A;
+  --text-accent:    #EA580C;
+
+  /* Semantic — Success */
+  --success-bg:     #DCFCE7;
+  --success-border: #86EFAC;
+  --success-text:   #166534;
+
+  /* Semantic — Danger */
+  --danger-bg:      #FEE2E2;
+  --danger-border:  #FCA5A5;
+  --danger-text:    #991B1B;
+
+  /* Semantic — Warning */
+  --warning-bg:     #FEF3C7;
+  --warning-border: #FDE047;
+  --warning-text:   #854D0E;
+
+  /* Semantic — Info */
+  --info-bg:        #DBEAFE;
+  --info-border:    #93C5FD;
+  --info-text:      #1E40AF;
+}
+
 /* ── Reset & Base ─────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
