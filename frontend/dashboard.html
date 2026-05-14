@@ -69,77 +69,84 @@
       <div class="profile-layout" style="margin-bottom: 40px;">
         <!-- Profile card -->
         <div class="profile-card card">
-          <div class="profile-card-top">
-            <div class="avatar-lg" id="avatarElLarge">
-              <img id="displayImgLarge" src="" alt="Profile" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:9999px;">
-              <span id="avatarInitialsLarge"></span>
+          <div style="display: flex; gap: 40px; align-items: flex-start; flex-wrap: wrap;">
+            
+            <div class="profile-card-top" style="margin-bottom: 0; padding-bottom: 0; border-bottom: none; flex-shrink: 0; min-width: 250px;">
+              <div class="avatar-lg" id="avatarElLarge">
+                <img id="displayImgLarge" src="" alt="Profile" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:9999px;">
+                <span id="avatarInitialsLarge"></span>
+              </div>
+              <div>
+                <div class="profile-name" id="profileFullName">—</div>
+                <div class="profile-username" id="profileUsername">—</div>
+              </div>
             </div>
-            <div>
-              <div class="profile-name" id="profileFullName">—</div>
-              <div class="profile-username" id="profileUsername">—</div>
+
+            <div style="flex: 1; min-width: 300px;">
+              <div id="userInfo">
+                <div style="display: flex; flex-wrap: wrap; gap: 32px; align-items: center; justify-content: space-between;">
+                  <div style="display: flex; gap: 32px; flex-wrap: wrap;">
+                    <div class="meta-field">
+                      <div class="meta-field-label">Email</div>
+                      <div class="meta-field-value" id="userEmail">—</div>
+                    </div>
+                    <div class="meta-field">
+                      <div class="meta-field-label">Job Title</div>
+                      <div class="meta-field-value" id="userJobTitle">—</div>
+                    </div>
+                    <div class="meta-field">
+                      <div class="meta-field-label">Department</div>
+                      <div class="meta-field-value" id="userDepartment">—</div>
+                    </div>
+                    <div class="meta-field">
+                      <div class="meta-field-label">System Role</div>
+                      <div class="meta-field-value" id="userRoleDetail">—</div>
+                    </div>
+                  </div>
+                  <button id="editBtn" class="btn btn-ghost btn-sm" onclick="showEditForm()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    Edit Profile
+                  </button>
+                </div>
+              </div>
+
+              <!-- Edit Form -->
+              <form id="editForm" style="display:none;">
+                <div class="form-grid-2">
+                  <div class="form-group">
+                    <label class="form-label" for="editFirstName">First Name</label>
+                    <input class="form-input" type="text" id="editFirstName" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="editLastName">Last Name</label>
+                    <input class="form-input" type="text" id="editLastName">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="editUsername">Username</label>
+                  <input class="form-input" type="text" id="editUsername" required>
+                </div>
+                <div class="form-grid-2">
+                  <div class="form-group">
+                    <label class="form-label" for="editJobTitle">Job Title</label>
+                    <input class="form-input" type="text" id="editJobTitle">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="editDepartment">Department</label>
+                    <input class="form-input" type="text" id="editDepartment">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="editProfilePic">Profile Picture</label>
+                  <input class="form-input" type="file" id="editProfilePic" accept="image/*" style="padding-top:7px;">
+                </div>
+                <div class="form-row-actions">
+                  <button type="submit" class="btn btn-primary" style="flex:1;">Save Changes</button>
+                  <button type="button" class="btn btn-ghost" onclick="cancelEdit()">Cancel</button>
+                </div>
+              </form>
             </div>
           </div>
-
-          <div id="userInfo">
-            <div class="meta-grid">
-              <div class="meta-field">
-                <div class="meta-field-label">Email</div>
-                <div class="meta-field-value" id="userEmail">—</div>
-              </div>
-              <div class="meta-field">
-                <div class="meta-field-label">Job Title</div>
-                <div class="meta-field-value" id="userJobTitle">—</div>
-              </div>
-              <div class="meta-field">
-                <div class="meta-field-label">Department</div>
-                <div class="meta-field-value" id="userDepartment">—</div>
-              </div>
-              <div class="meta-field">
-                <div class="meta-field-label">System Role</div>
-                <div class="meta-field-value" id="userRoleDetail">—</div>
-              </div>
-            </div>
-            <button id="editBtn" class="btn btn-ghost" style="margin-top:20px;width:100%;" onclick="showEditForm()">
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-              Edit Profile
-            </button>
-          </div>
-
-          <!-- Edit Form -->
-          <form id="editForm" style="display:none;">
-            <div class="form-grid-2">
-              <div class="form-group">
-                <label class="form-label" for="editFirstName">First Name</label>
-                <input class="form-input" type="text" id="editFirstName" required>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="editLastName">Last Name</label>
-                <input class="form-input" type="text" id="editLastName">
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="editUsername">Username</label>
-              <input class="form-input" type="text" id="editUsername" required>
-            </div>
-            <div class="form-grid-2">
-              <div class="form-group">
-                <label class="form-label" for="editJobTitle">Job Title</label>
-                <input class="form-input" type="text" id="editJobTitle">
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="editDepartment">Department</label>
-                <input class="form-input" type="text" id="editDepartment">
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="editProfilePic">Profile Picture</label>
-              <input class="form-input" type="file" id="editProfilePic" accept="image/*" style="padding-top:7px;">
-            </div>
-            <div class="form-row-actions">
-              <button type="submit" class="btn btn-primary" style="flex:1;">Save Changes</button>
-              <button type="button" class="btn btn-ghost" onclick="cancelEdit()">Cancel</button>
-            </div>
-          </form>
         </div>
 
         <!-- Admin panel (if applicable) -->
