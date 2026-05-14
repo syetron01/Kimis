@@ -170,11 +170,17 @@
         </div>
       </div>
 
-      <form id="createWorkspaceForm" class="create-ws-form" style="display:none;">
+      <form id="createWorkspaceForm" class="create-ws-form" style="display:none; flex-direction: column; gap: 12px; margin-bottom: 24px; padding: 16px; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 8px;">
         <input type="text" id="newWsName" class="form-input" placeholder="Workspace name…" required>
         <input type="text" id="newWsDesc" class="form-input" placeholder="Description (optional)">
-        <button type="submit" class="btn btn-primary btn-sm">Create</button>
-        <button type="button" class="btn btn-ghost btn-sm" onclick="toggleCreateWs()">Cancel</button>
+        <div>
+          <label style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; display: block;">Workspace Profile Image (Optional)</label>
+          <input type="file" id="newWsProfile" class="form-input" accept="image/*" style="padding-top: 7px;">
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button type="submit" class="btn btn-primary btn-sm">Create Workspace</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="toggleCreateWs()">Cancel</button>
+        </div>
       </form>
 
       <div id="workspacesContainer" class="workspace-list">
