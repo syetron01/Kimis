@@ -1,0 +1,49 @@
+API Test Cases for Kimis Server
+
+1. Endpoint: POST /api/login
+Description: Authenticates a user and returns a JWT token.
+- Test Case 1.1: Valid credentials (correct email and password). Expected: 200 OK, returns JSON with message and token.
+- Test Case 1.2: Invalid email (not in database). Expected: 401 Unauthorized, returns { "message": "Invalid credentials" }.
+- Test Case 1.3: Valid email, invalid password. Expected: 401 Unauthorized, returns { "message": "Invalid credentials" }.
+- Test Case 1.4: Missing 'email' field in payload. Expected: 401 Unauthorized.
+- Test Case 1.5: Missing 'password' field in payload. Expected: 401 Unauthorized.
+- Test Case 1.6: Empty JSON payload {}. Expected: 401 Unauthorized.
+- Test Case 1.7: Incorrect data types (e.g., email as number, password as boolean). Expected: 401 Unauthorized.
+- Test Case 1.8: Extra fields in payload. Expected: Extra fields ignored, authentication proceeds based on email/password.
+
+2. Endpoint: POST /api/register
+Description: Registers a new user.
+- Test Case 2.1: Valid new email and password. Expected: 201 Created, returns { "message": "Registration successful" }.
+- Test Case 2.2: Email already exists in database. Expected: 409 Conflict, returns { "message": "Email already registered" }.
+- Test Case 2.3: Missing 'email' field. Expected: 400 Bad Request, returns { "message": "Email and password are required" }.
+- Test Case 2.4: Missing 'password' field. Expected: 400 Bad Request, returns { "message": "Email and password are required" }.
+- Test Case 2.5: Empty JSON payload {}. Expected: 400 Bad Request.
+- Test Case 2.6: Attempt to inject 'role' field (e.g., { "email": "a@a.com", "password": "123", "role": "admin" }). Expected: User created but role should remain "user" (forced by server).
+- Test Case 2.7: Empty string for email or password. Expected: 400 Bad Request (due to truthiness check `!email || !password`).
+
+3. Endpoint: GET /api/me
+Description: Returns details of the currently authenticated user.
+- Test Case 3.1: Valid token in 'Authorization: Bearer <token>' header. Expected: 200 OK, returns user JSON (id, email, role) without password.
+- Test Case 3.2: Missing Authorization header entirely. Expected: 401 Unauthorized.
+- Test Case 3.3: Empty Authorization header. Expected: 401 Unauthorized.
+- Test Case 3.4: Malformed Authorization header (e.g., just "Bearer" without token, or token without "Bearer "). Expected: 401 Unauthorized.
+- Test Case 3.5: Invalid token string (e.g., "Bearer 12345"). Expected: 403 Forbidden.
+- Test Case 3.6: Expired token. Expected: 403 Forbidden.
+- Test Case 3.7: Valid token, but user ID no longer exists in DB. Expected: 404 Not Found, returns { "message": "User not found" }.
+
+4. Endpoint: GET /api/admin-data
+Description: Returns sensitive data for admin users only.
+- Test Case 4.1: Valid token for user with 'admin' role. Expected: 200 OK, returns admin data JSON.
+- Test Case 4.2: Valid token for user with 'user' role. Expected: 403 Forbidden, returns { "message": "Access denied" }.
+- Test Case 4.3: Missing Authorization header. Expected: 401 Unauthorized.
+- Test Case 4.4: Invalid or malformed token. Expected: 403 Forbidden (or 401 depending on malformation).
+- Test Case 4.5: Expired token. Expected: 403 Forbidden.
+
+5. Endpoint: GET /
+Description: Health check/root endpoint.
+- Test Case 5.1: Standard GET request. Expected: 200 OK, returns text "Server is up and running! Please access the login endpoint."
+
+General/Global Test Cases:
+- Test Case G.1: Invalid JSON syntax in request body for POST endpoints. Expected: 400 Bad Request (handled by express.json middleware).
+- Test Case G.2: Requesting an undefined endpoint (e.g., GET /api/unknown). Expected: 404 Not Found (default Express behavior).
+- Test Case G.3: Using wrong HTTP method (e.g., GET /api/login). Expected: 404 Not Found.

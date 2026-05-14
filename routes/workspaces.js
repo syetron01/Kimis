@@ -69,7 +69,8 @@ router.get("/", authenticateToken, async (req, res) => {
                 (SELECT COUNT(*) FROM workflows WHERE workspace_id = w.id) as num_workflows
              FROM workspace_memberships m 
              JOIN workspaces w ON m.workspace_id = w.id 
-             WHERE m.user_id = $1`,
+             WHERE m.user_id = $1
+             ORDER BY w.id DESC`,
             [req.user.id]
         );
         res.json(result.rows);

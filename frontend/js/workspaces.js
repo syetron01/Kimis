@@ -154,9 +154,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
 
                 if (res.ok) {
+                    alert(`Successfully created ${name}`);
                     document.getElementById("newWsName").value = '';
                     document.getElementById("newWsDesc").value = '';
                     if (fileInput) fileInput.value = '';
+                    if (typeof toggleCreateWs === 'function') {
+                        toggleCreateWs();
+                    }
                     await loadWorkspaces();
                 } else {
                     const data = await res.json();
