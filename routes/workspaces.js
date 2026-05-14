@@ -39,7 +39,11 @@ router.post("/", authenticateToken, async (req, res) => {
 router.get("/", authenticateToken, async (req, res) => {
     try {
         const result = await pool.query(
-            `SELECT w.id, w.name, w.description, m.role as user_role 
+            `SELECT 
+                w.id, w.name, w.description, m.role as user_role,
+                (SELECT COUNT(*) FROM workspace_memberships WHERE workspace_id = w.id) as num_members,
+                (SELECT COUNT(*) FROM articles WHERE workspace_id = w.id AND is_archived = FALSE) as num_articles,
+                (SELECT COUNT(*) FROM workflows WHERE workspace_id = w.id) as num_workflows
              FROM workspace_memberships m 
              JOIN workspaces w ON m.workspace_id = w.id 
              WHERE m.user_id = $1`,

@@ -27,9 +27,7 @@
     </div>
   </div>
 
-  <nav class="topnav-links">
-    <a class="topnav-link active" href="#" id="navWorkspaces" onclick="backToWorkspaces()">Workspaces</a>
-  </nav>
+  <nav class="topnav-links"></nav>
 
   <div class="topnav-theme">
     <button type="button" class="btn btn-ghost" id="themeToggleBtn" onclick="toggleTheme()" style="padding: 0 10px; height: 34px; border-radius: 9999px;">
@@ -161,12 +159,15 @@
         </div>
       </div>
 
-      <div class="section-header">
-        <h2 class="page-heading">My Workspaces</h2>
-        <button class="btn btn-ghost btn-sm" onclick="toggleCreateWs()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          New Workspace
-        </button>
+      <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <h2 class="page-heading" style="margin: 0;">My Workspaces</h2>
+        <div style="display: flex; gap: 12px; align-items: center; flex: 1; max-width: 400px; justify-content: flex-end;">
+          <input type="text" id="workspaceSearch" class="form-input" placeholder="Search workspaces..." oninput="filterWorkspaces(this.value)" style="flex: 1; min-width: 150px; padding-top: 6px; padding-bottom: 6px;">
+          <button class="btn btn-ghost btn-sm" onclick="toggleCreateWs()" style="flex-shrink: 0;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New Workspace
+          </button>
+        </div>
       </div>
 
       <form id="createWorkspaceForm" class="create-ws-form" style="display:none;">
