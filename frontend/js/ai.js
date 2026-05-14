@@ -198,8 +198,18 @@ function renderResultRow(item, keywords) {
             </div>`;
     }
 
+    let onClickAttr = '';
+    let cursorStyle = '';
+    if (item.type === 'article') {
+        onClickAttr = `onclick="switchWsTab('articles'); openArticleEditor(${item.id});"`;
+        cursorStyle = 'cursor: pointer;';
+    } else if (item.type === 'workflow_node' || item.type === 'node') {
+        onClickAttr = `onclick="switchWsTab('workflows'); openWorkflow(${item.workflow_id});"`;
+        cursorStyle = 'cursor: pointer;';
+    }
+
     return `
-        <div class="ai-result-row">
+        <div class="ai-result-row" ${onClickAttr} style="${cursorStyle}">
             <span class="badge ${item.type === 'article' ? 'badge-article' : 'badge-node'}" style="flex-shrink:0;margin-top:2px;">${typeLabel}</span>
             <div class="ai-result-body">
                 <div class="ai-result-title">${escapeHtml(item.title)}</div>

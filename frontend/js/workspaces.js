@@ -34,6 +34,25 @@ async function loadWorkspaces() {
                         <span class="badge ${roleClass} workspace-role">${ws.user_role}</span>
                     </div>`;
             }).join('');
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const targetWsId = urlParams.get('workspaceId');
+            const targetArtId = urlParams.get('articleId');
+
+            if (targetWsId && !currentWorkspaceId) {
+                const ws = workspaces.find(w => w.id == targetWsId);
+                if (ws) {
+                    manageWorkspace(ws.id, ws.user_role, ws.name).then(() => {
+                        if (targetArtId) {
+                            setTimeout(() => {
+                                switchWsTab('articles');
+                                openArticleEditor(targetArtId);
+                                window.history.replaceState({}, document.title, window.location.pathname);
+                            }, 300);
+                        }
+                    });
+                }
+            }
         }
     } catch (err) {
         console.error("Error loading workspaces", err);
