@@ -253,7 +253,7 @@ async function getWorkspaceContext(workspaceId) {
 
     const memRes = await pool.query(`
         SELECT u.first_name, u.last_name, u.email, m.role
-        FROM workspace_members m
+        FROM workspace_memberships m
         JOIN users u ON m.user_id = u.id
         WHERE m.workspace_id = $1
     `, [workspaceId]);

@@ -74,18 +74,6 @@ async function askAI() {
 function renderAIResponse(data) {
     const container = document.getElementById('aiResultsContainer');
 
-    // ── Confidence badge ─────────────────────────────────
-    const confidenceColors = {
-        high:   'var(--success-text,#4ade80)',
-        medium: 'var(--text-accent)',
-        low:    'var(--text-secondary)',
-        none:   'var(--text-tertiary)'
-    };
-    const confidenceColor = confidenceColors[data.confidence] || confidenceColors.none;
-    const confidenceBadge = data.confidence
-        ? `<span style="font-size:11px;color:${confidenceColor};border:1px solid ${confidenceColor};border-radius:4px;padding:1px 6px;margin-left:8px;">${data.confidence.toUpperCase()}</span>`
-        : '';
-
     // ── AI Answer block ──────────────────────────────────
     const answerHtml = data.answer
         ? `<div class="ai-answer-block" style="
@@ -165,9 +153,6 @@ function renderAIResponse(data) {
     // ── Assemble ─────────────────────────────────────────
     container.innerHTML = `
         <div style="padding-top:12px;">
-            <div style="display:flex;align-items:center;font-size:12px;color:var(--text-tertiary);">
-                KiMiS AI Answer ${confidenceBadge}
-            </div>
             ${answerHtml}
             ${workflowHtml}
             ${sourcesHtml}
