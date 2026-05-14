@@ -17,11 +17,45 @@ const MAX_ARTICLE_CONTENT_CHARS = 800;
  *
  * @param {string}        userQuery  - Original user query
  * @param {RankedResult[]} results   - Top ranked items from retrieval layer
+ * @param {object}        workspaceContext - Overall info about the workspace
  * @returns {{ contextText: string, sources: SourceMeta[], workflow: WorkflowMeta|null }}
  */
-function buildContext(userQuery, results) {
+function buildContext(userQuery, results, workspaceContext) {
     const articleResults  = results.filter(r => r.type === 'article');
     const workflowResults = results.filter(r => r.type === 'workflow_node');
+
+    // ── Build workspace metadata block ────────────────────
+    let workspaceBlock = '';
+    const sources    = [];
+
+    if (workspaceContext) {
+        workspaceBlock += `Workspace Overview:\n`;
+        workspaceBlock += `Name: ${workspaceContext.name}\n`;
+        if (workspaceContext.description) workspaceBlock += `Description: ${workspaceContext.description}\n`;
+        
+        workspaceBlock += `\nMembers (${workspaceContext.members.length}):\n`;
+        workspaceContext.members.forEach(m => {
+            workspaceBlock += `- ${m.first_name} ${m.last_name} (${m.email}) - Role: ${m.role}\n`;
+        });
+        
+        workspaceBlock += `\nAvailable Articles (${workspaceContext.articleTitles.length}):\n`;
+        if (workspaceContext.articleTitles.length) {
+            workspaceBlock += `- ${workspaceContext.articleTitles.join(', ')}\n`;
+        } else {
+            workspaceBlock += `(No articles)\n`;
+        }
+        
+        workspaceBlock += `\nAvailable Workflows (${workspaceContext.workflowTitles.length}):\n`;
+        if (workspaceContext.workflowTitles.length) {
+            workspaceBlock += `- ${workspaceContext.workflowTitles.join(', ')}\n`;
+        } else {
+            workspaceBlock += `(No workflows)\n`;
+        }
+        workspaceBlock += `\n`;
+
+        // Push general workspace context as a source to give a baseline confidence level
+        sources.push({ type: 'workspace', id: 'overview', title: 'Workspace Metadata & Members' });
+    }
 
     // ── Collect unique workflow IDs and their steps ─────
     const workflowMap = new Map();
@@ -51,10 +85,9 @@ function buildContext(userQuery, results) {
 
     // ── Build article context block ─────────────────────
     let articleBlock = '';
-    const sources    = [];
 
     if (articleResults.length) {
-        articleBlock = 'Retrieved Knowledge Articles:\n';
+        articleBlock = 'Retrieved Knowledge Articles (Specifically matching query):\n';
         for (const art of articleResults) {
             const truncatedContent = art.content
                 ? art.content.substring(0, MAX_ARTICLE_CONTENT_CHARS) +
@@ -72,7 +105,7 @@ function buildContext(userQuery, results) {
     let primaryWorkflow   = null;
 
     if (workflowMap.size) {
-        workflowBlock = '\nRetrieved Workflow Steps:\n';
+        workflowBlock = '\nRetrieved Workflow Steps (Specifically matching query):\n';
 
         let first = true;
         for (const [, wf] of workflowMap) {
@@ -99,8 +132,10 @@ function buildContext(userQuery, results) {
     // ── Combine into single context string ──────────────
     const contextText = [
         `User Question:\n"${userQuery}"`,
-        articleBlock  || '',
-        workflowBlock || ''
+        `\n--- CONTEXT ---\n`,
+        workspaceBlock,
+        articleBlock,
+        workflowBlock
     ].filter(Boolean).join('\n');
 
     return { contextText, sources, workflow: primaryWorkflow };

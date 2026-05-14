@@ -241,9 +241,43 @@ function buildSnippet(content, keyword) {
     return snip;
 }
 
+// ── Workspace Context ─────────────────────────────────────
+
+/**
+ * Gathers overarching metadata about the workspace (members, articles, workflows)
+ * to provide Gemini with a holistic view of the environment.
+ */
+async function getWorkspaceContext(workspaceId) {
+    const wsRes = await pool.query('SELECT name, description FROM workspaces WHERE id = $1', [workspaceId]);
+    const ws = wsRes.rows[0];
+
+    const memRes = await pool.query(`
+        SELECT u.first_name, u.last_name, u.email, m.role
+        FROM workspace_members m
+        JOIN users u ON m.user_id = u.id
+        WHERE m.workspace_id = $1
+    `, [workspaceId]);
+    const members = memRes.rows;
+
+    const artRes = await pool.query('SELECT title FROM articles WHERE workspace_id = $1 AND is_archived = FALSE', [workspaceId]);
+    const articleTitles = artRes.rows.map(r => r.title);
+
+    const wfRes = await pool.query('SELECT title FROM workflows WHERE workspace_id = $1', [workspaceId]);
+    const workflowTitles = wfRes.rows.map(r => r.title);
+
+    return {
+        name: ws ? ws.name : 'Unknown',
+        description: ws ? ws.description : '',
+        members,
+        articleTitles,
+        workflowTitles
+    };
+}
+
 module.exports = {
     retrieveArticles,
     retrieveWorkflowNodes,
     rankResults,
-    getWorkflowSteps
+    getWorkflowSteps,
+    getWorkspaceContext
 };

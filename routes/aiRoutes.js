@@ -31,7 +31,8 @@ const { requireWorkspaceRole } = require('../middleware/rbac');
 const { extractKeywords }           = require('../utils/nlp');
 const { retrieveArticles,
         retrieveWorkflowNodes,
-        rankResults }               = require('../services/aiRetrievalService');
+        rankResults,
+        getWorkspaceContext }       = require('../services/aiRetrievalService');
 const { buildContext }              = require('../services/contextBuilderService');
 const { generateGroundedAnswer,
         computeConfidence }         = require('../services/geminiService');
@@ -59,22 +60,11 @@ router.post(
             const keywords = extractKeywords(query);
             console.log(`[AI] Query: "${query}" → keywords: [${keywords.join(', ')}]`);
 
-            if (keywords.length === 0) {
-                return res.json({
-                    query,
-                    answer: 'Your query did not contain any searchable keywords. Please try rephrasing with more specific terms.',
-                    confidence: 'none',
-                    sources: [],
-                    workflow: null,
-                    keywords: [],
-                    results: []
-                });
-            }
-
             // ── Step 2: Retrieve ──────────────────────────
-            const [articles, nodes] = await Promise.all([
+            const [articles, nodes, workspaceContext] = await Promise.all([
                 retrieveArticles(wsId, keywords),
-                retrieveWorkflowNodes(wsId, keywords)
+                retrieveWorkflowNodes(wsId, keywords),
+                getWorkspaceContext(wsId)
             ]);
 
             console.log(`[AI] Retrieved: ${articles.length} article(s), ${nodes.length} node(s)`);
@@ -83,16 +73,10 @@ router.post(
             const rankedResults = await rankResults(articles, nodes, 5);
 
             // ── Step 4: Build Context ─────────────────────
-            const { contextText, sources, workflow } = buildContext(query, rankedResults);
+            const { contextText, sources, workflow } = buildContext(query, rankedResults, workspaceContext);
 
             // ── Step 5: Generate Gemini Answer ────────────
-            let answer;
-            if (rankedResults.length === 0) {
-                // Nothing retrieved — tell user clearly without calling Gemini
-                answer = `The KiMiS knowledge base does not currently contain articles or workflow steps matching your query: "${query}". Please check with your workspace administrators to ensure relevant content has been added.`;
-            } else {
-                answer = await generateGroundedAnswer(contextText);
-            }
+            const answer = await generateGroundedAnswer(contextText);
 
             // ── Step 6: Compute confidence & format ───────
             const confidence = computeConfidence(sources);
