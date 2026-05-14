@@ -67,7 +67,7 @@ async function manageWorkspace(id, role, name) {
     document.getElementById("managerWsRole").innerText = `Your Role: ${role}`;
 
     document.getElementById("workspacesListView").style.display = "none";
-    document.getElementById("workspaceManagerView").style.display = "block";
+    document.getElementById("workspaceManagerView").style.display = "flex";
 
     // Show add member form & Create article button based on role
     const addForm = document.getElementById("addMemberForm");
@@ -94,7 +94,7 @@ async function manageWorkspace(id, role, name) {
 
     // Standard reset tabs
     if (typeof switchWsTab === 'function') {
-        switchWsTab('members');
+        switchWsTab('ai');
     }
     await loadMembers();
 }

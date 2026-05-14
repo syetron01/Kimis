@@ -117,9 +117,79 @@ body { background: var(--bg-base); color: var(--text-primary); min-height: 100dv
    PAGE BODY
 ══════════════════════════════════════════════════════ */
 .page-body {
-  max-width: 920px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 36px 24px 64px;
+}
+
+/* ══════════════════════════════════════════════════════
+   WORKSPACE SIDEBAR LAYOUT
+══════════════════════════════════════════════════════ */
+.workspace-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 32px;
+}
+
+.workspace-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 96px;
+}
+
+.workspace-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+  text-align: left;
+}
+
+.sidebar-link svg {
+  color: var(--text-tertiary);
+  transition: color 120ms ease;
+}
+
+.sidebar-link:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.sidebar-link:hover svg {
+  color: var(--text-secondary);
+}
+
+.sidebar-link.active {
+  background: var(--bg-surface);
+  border-color: var(--border-default);
+  color: var(--primary);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.sidebar-link.active svg {
+  color: var(--primary);
 }
 
 .content-section { /* no extra rules needed — hidden/shown via JS */ }
