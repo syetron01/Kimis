@@ -1,0 +1,77 @@
+# KiMiS System Usage Guide
+
+This document outlines the core features of the Knowledge Intelligence Management System (KiMiS).
+
+==========================================================
+1. WORKSPACE MANAGEMENT
+==========================================================
+Access these via the "Settings" tab in your Workspace sidebar.
+
+• LEAVE WORKSPACE:
+  - Viewers/Editors can leave at any time.
+  - Admins can leave if another Admin/Owner remains.
+  - Owners can only leave if there is at least one other Owner.
+  - Action: Click "Leave Workspace" in Settings.
+
+• DELETE WORKSPACE (Owner Only):
+  - Permanently removes all Articles, Workflows, and Members.
+  - Action: Type the workspace name in the prompt to confirm.
+
+• TRANSFER OWNERSHIP (Owner Only):
+  - Give "Owner" status to another member.
+  - You will be downgraded to "Admin" after transfer.
+  - Action: Go to "Members" tab -> Click "Transfer" next to a member.
+
+• MEMBER ROLES:
+  - Owner: Full control, can delete/transfer.
+  - Admin: Can manage members (Editor/Viewer) and all content.
+  - Editor: Can create/edit Articles and Workflows.
+  - Viewer: Read-only access to all content.
+
+==========================================================
+2. VISUAL WORKFLOWS: A STEP-BY-STEP SAMPLE
+==========================================================
+Workflows help you map out complex processes and link them to documentation.
+
+SAMPLE SCENARIO: "Software Release Process"
+-------------------------------------------
+
+Step 1: Create the Workflow
+- Go to "Workflows" tab -> Click "New Workflow".
+- Title: "App Production Release"
+- Description: "Standard procedure for deploying new features."
+
+Step 2: Add Nodes (The Shapes)
+Use the "Add Node" form in the sidebar:
+1. Title: "Code Review" | Type: "Action" | Description: "Peer review on GitHub"
+2. Title: "Tests Pass?" | Type: "Decision" | Description: "Check CI/CD pipeline"
+3. Title: "Deploy to Staging" | Type: "Action" | Description: "Internal verification"
+4. Title: "Release to Prod" | Type: "End" | Description: "Public live"
+
+Step 3: Connect Nodes (The Lines)
+Use the "Connect Nodes" form:
+- From: "Code Review" -> To: "Tests Pass?" | Condition: "Complete"
+- From: "Tests Pass?" -> To: "Deploy to Staging" | Condition: "Yes"
+- From: "Deploy to Staging" -> To: "Release to Prod" | Condition: "Verified"
+
+Step 4: The Power of Linking
+- Create an Article titled "Deployment Checklist" with your server commands.
+- Edit your "Deploy to Staging" node and select the "Deployment Checklist" article in the dropdown.
+- Now, anyone viewing the graph can click that node to read the specific instructions!
+
+==========================================================
+3. AI KNOWLEDGE ASSISTANT
+==========================================================
+- Use the "AI Assistant" tab to ask questions in natural language.
+- Examples:
+  - "What are the steps for the software release?"
+  - "Who is the owner of this workspace?"
+  - "Summarize the deployment checklist."
+- The AI will search your Articles and Workflow nodes to provide a grounded answer.
+
+==========================================================
+4. CUSTOM UI TIPS
+==========================================================
+- Toasts: Watch the bottom-right corner for success/error messages.
+- Modals: All sensitive actions (Delete, Leave) now use professional dark-themed dialogs instead of browser popups.
+- Theme: Toggle between Light and Dark mode using the sun/moon icon in the top navbar.

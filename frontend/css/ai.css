@@ -1,0 +1,25 @@
+/*
+  ai.css — Scoped overrides for the AI assistant UI.
+  All core tokens come from design-system.css via dashboard.css.
+  This file only adds AI-specific component styles not already covered.
+*/
+
+/* AI result rows are already styled in dashboard.css.
+   This file handles the loading spinner animation. */
+
+@keyframes spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.ai-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border-default);
+  border-top-color: var(--primary);
+  border-radius: 9999px;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 8px;
+}

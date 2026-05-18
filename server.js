@@ -1,134 +1,62 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const jwt = require('jsonwebtoken');
+const path = require('path');
 
 const app = express();
 
-// Middleware to parse JSON bodies and allow cross-origin requests
+// ── Core Middleware ──────────────────────────────────
 app.use(cors());
 app.use(express.json());
 
-const SECRET = "your_super_secret_key";
+// ── Static Files ────────────────────────────────────
+app.use(express.static(path.join(__dirname, 'frontend')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Dummy user database (let allows us to add new users)
-let users = [
-    { id: 1, email: "test@test.com", password: "password123", role: "user" },
-    { id: 2, email: "admin@test.com", password: "adminpassword", role: "admin" }
-];
+// ── Route Mounting ──────────────────────────────────
+app.use('/api', require('./routes/auth'));
+app.use('/api', require('./routes/users'));
 
-app.post("/api/login", (req,res)=>{
+// Sub-resources first
+app.use('/api/workspaces/:workspaceId/members', require('./routes/members'));
+app.use('/api/workspaces/:workspaceId/articles', require('./routes/articles'));
+app.use('/api/workspaces/:workspaceId/workflows', require('./routes/workflows'));
+app.use('/api/workspaces/:wsId/ai', require('./routes/aiRoutes'));
 
- const {email,password} = req.body;
+// General resource last
+app.use('/api/workspaces', require('./routes/workspaces'));
 
- const user = users.find(u => u.email === email && u.password === password);
-
- if(!user){
-  return res.status(401).json({message:"Invalid credentials"});
- }
-
- const token = jwt.sign(
-  {id:user.id, role:user.role},
-  SECRET,
-  {expiresIn:"1h"}
- );
-
- res.json({
-  message:"Login successful",
-  token:token
- });
-
-});
-
-app.post("/api/register", (req, res) => {
- const { email, password } = req.body;
-
- if (!email || !password) {
-  return res.status(400).json({ message: "Email and password are required" });
- }
-
- const existingUser = users.find(u => u.email === email);
- if (existingUser) {
-  return res.status(409).json({ message: "Email already registered" });
- }
-
- const newUser = {
-  id: users.length + 1,
-  email,
-  password,
-  role: "user" // Default role
- };
-
- users.push(newUser);
-
- res.status(201).json({ message: "Registration successful" });
-});
-
-app.get("/api/me", authenticateToken, (req, res) => {
- // Find the user details based on the token
- const user = users.find(u => u.id === req.user.id);
- 
- if (!user) {
-  return res.status(404).json({ message: "User not found" });
- }
-
- // Return user details without password
- res.json({
-  id: user.id,
-  email: user.email,
-  role: user.role
- });
-});
-
-app.get("/api/admin-data", authenticateToken, authorizeRole('admin'), (req, res) => {
- // This endpoint is only accessible if authenticateToken AND authorizeRole('admin') pass
- res.json({
-  message: "Sensitive Admin Information Accessed Successfully!",
-  serverStatus: "Healthy",
-  activeUsers: users.length
- });
-});
-
-function authenticateToken(req,res,next){
-
- const authHeader = req.headers["authorization"];
- const token = authHeader && authHeader.split(" ")[1];
-
- if(!token){
-  return res.sendStatus(401);
- }
-
- jwt.verify(token,SECRET,(err,user)=>{
-
-  if(err){
-   return res.sendStatus(403);
-  }
-
-  req.user = user;
-  next();
-
- });
-
-}
-
-function authorizeRole(role){
-
- return (req,res,next)=>{
-
-  if(req.user.role !== role){
-   return res.status(403).json({message:"Access denied"});
-  }
-
-  next();
-
- };
-
-}
-
+// ── Root ────────────────────────────────────────────
 app.get('/', (req, res) => {
-    res.send('Server is up and running! Please access the login endpoint.');
+    res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
 });
 
-const PORT = 8080;
+// ── Start ───────────────────────────────────────────
+const PORT = process.env.PORT || 8080;
+
+// ── Error Handler ────────────────────────────────────
+app.use((err, req, res, next) => {
+    console.error("GLOBAL ERROR HANDLER:", err);
+    
+    // Handle Multer errors
+    if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(413).json({
+            message: "File too large. Maximum allowed size is 10MB."
+        });
+    }
+    
+    if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+        return res.status(400).json({
+            message: "Unexpected file field."
+        });
+    }
+
+    res.status(err.status || 500).json({
+        message: err.message || "Internal Server Error",
+        error: process.env.NODE_ENV === 'development' ? err : {}
+    });
+});
+
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });

@@ -1,0 +1,20 @@
+-- KiMiS Dummy Users Seed Data
+-- To run this file in your PostgreSQL command line:
+-- \i 'd:/School/3RD-YEAR/2ND-SEMESTER/IT-SYSARCH/Kimis/dummy_users_seed.txt'
+-- Or from your terminal:
+-- psql -U postgres -d kimis -f dummy_users_seed.txt
+
+-- Clear existing dummy data if needed (Optional: uncomment the next line)
+-- DELETE FROM users WHERE email LIKE '%@test.com';
+
+INSERT INTO users (email, password, role, first_name, last_name, username, job_title, department)
+VALUES 
+('alice@test.com', 'password123', 'admin', 'Alice', 'Smith', 'alice_admin', 'System Administrator', 'IT Department'),
+('bob@test.com', 'password123', 'user', 'Bob', 'Jones', 'bobby_j', 'Creative Director', 'Marketing'),
+('charlie@test.com', 'password123', 'user', 'Charlie', 'Brown', 'cbrown', 'Software Engineer', 'Engineering'),
+('diana@test.com', 'password123', 'user', 'Diana', 'Prince', 'wonder_d', 'Project Manager', 'Operations'),
+('edward@test.com', 'password123', 'user', 'Edward', 'Norton', 'ed_actor', 'Senior Researcher', 'R&D')
+ON CONFLICT (email) DO NOTHING;
+
+-- Verification Query
+SELECT id, email, username, role FROM users;

@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="KiMiS — Your Knowledge Intelligence Management System dashboard.">
+  <title>Dashboard — KiMiS</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/ai.css">
+  <script>
+    const savedTheme = localStorage.getItem("theme") || "dark";
+    document.documentElement.setAttribute("data-theme", savedTheme);
+  </script>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════
+     TOP NAVBAR
+══════════════════════════════════════════════════════ -->
+<header class="topnav">
+  <div class="topnav-brand" style="display: flex; align-items: center; gap: 12px;">
+    <img src="img/kimisLogo.png" alt="KiMiS Logo" style="height: 28px; width: auto; display: block; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
+    <div style="display: flex; align-items: baseline; gap: 12px;">
+      <span class="topnav-logo">KiMiS</span>
+      <span class="topnav-tagline">Knowledge Intelligence Management System</span>
+    </div>
+  </div>
+
+  <nav class="topnav-links"></nav>
+
+  <div class="topnav-theme">
+    <button type="button" class="btn btn-ghost" id="themeToggleBtn" onclick="toggleTheme()" style="padding: 0 10px; height: 34px; border-radius: 9999px;">
+      <svg id="themeIconDark" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+      <svg id="themeIconLight" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+    </button>
+  </div>
+
+  <div class="topnav-user">
+    <button id="logoutBtn" class="btn btn-danger btn-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Logout
+    </button>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════════════════
+     MAIN CONTENT AREA
+══════════════════════════════════════════════════════ -->
+<main class="page-body">
+
+  <!-- ── DASHBOARD SECTION ── -->
+  <section id="sectionWorkspaces" class="content-section">
+
+    <!-- List View -->
+    <div id="workspacesListView">
+      
+      <div class="section-header">
+        <h2 class="page-heading">My Profile</h2>
+      </div>
+
+      <div class="profile-layout" style="margin-bottom: 40px;">
+        <!-- Profile card -->
+        <div class="profile-card card">
+          <div style="display: flex; gap: 40px; align-items: flex-start; flex-wrap: wrap;">
+            
+            <div class="profile-card-top" style="margin-bottom: 0; padding-bottom: 0; border-bottom: none; flex-shrink: 0; min-width: 250px;">
+              <div class="avatar-lg" id="avatarElLarge">
+                <img id="displayImgLarge" src="" alt="Profile" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:9999px;">
+                <span id="avatarInitialsLarge"></span>
+              </div>
+              <div>
+                <div class="profile-name" id="profileFullName">—</div>
+                <div class="profile-username" id="profileUsername">—</div>
+              </div>
+            </div>
+
+            <div style="flex: 1; min-width: 300px;">
+              <div id="userInfo">
+                <div style="display: flex; flex-wrap: wrap; gap: 32px; align-items: center; justify-content: space-between;">
+                  <div style="display: flex; gap: 32px; flex-wrap: wrap;">
+                    <div class="meta-field">
+                      <div class="meta-field-label">Email</div>
+                      <div class="meta-field-value" id="userEmail">—</div>
+                    </div>
+                    <div class="meta-field">
+                      <div class="meta-field-label">Job Title</div>
+                      <div class="meta-field-value" id="userJobTitle">—</div>
+                    </div>
+                    <div class="meta-field">
+                      <div class="meta-field-label">Department</div>
+                      <div class="meta-field-value" id="userDepartment">—</div>
+                    </div>
+                    <div class="meta-field">
+                      <div class="meta-field-label">System Role</div>
+                      <div class="meta-field-value" id="userRoleDetail">—</div>
+                    </div>
+                  </div>
+                  <button id="editBtn" class="btn btn-ghost btn-sm" onclick="showEditForm()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    Edit Profile
+                  </button>
+                </div>
+              </div>
+
+              <!-- Edit Form -->
+              <form id="editForm" style="display:none;">
+                <div class="form-grid-2">
+                  <div class="form-group">
+                    <label class="form-label" for="editFirstName">First Name</label>
+                    <input class="form-input" type="text" id="editFirstName" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="editLastName">Last Name</label>
+                    <input class="form-input" type="text" id="editLastName">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="editUsername">Username</label>
+                  <input class="form-input" type="text" id="editUsername" required>
+                </div>
+                <div class="form-grid-2">
+                  <div class="form-group">
+                    <label class="form-label" for="editJobTitle">Job Title</label>
+                    <input class="form-input" type="text" id="editJobTitle">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="editDepartment">Department</label>
+                    <input class="form-input" type="text" id="editDepartment">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="editProfilePic">Profile Picture</label>
+                  <input class="form-input" type="file" id="editProfilePic" accept="image/*" style="padding-top:7px;">
+                </div>
+                <div class="form-row-actions">
+                  <button type="submit" class="btn btn-primary" style="flex:1;">Save Changes</button>
+                  <button type="button" class="btn btn-ghost" onclick="cancelEdit()">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admin panel (if applicable) -->
+        <div id="adminPanel" class="admin-panel" style="display:none;">
+          <h3>🛡️ Admin Panel</h3>
+          <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Global admin access is enabled.</p>
+          <button id="fetchAdminDataBtn" class="btn btn-ghost btn-sm">Fetch Admin Data</button>
+          <div id="adminResult" class="admin-result">Awaiting request…</div>
+        </div>
+      </div>
+
+      <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <h2 class="page-heading" style="margin: 0;">My Workspaces</h2>
+        <div style="display: flex; gap: 12px; align-items: center; flex: 1; max-width: 400px; justify-content: flex-end;">
+          <input type="text" id="workspaceSearch" class="form-input" placeholder="Search workspaces..." oninput="filterWorkspaces(this.value)" style="flex: 1; min-width: 150px; padding-top: 6px; padding-bottom: 6px;">
+          <button class="btn btn-ghost btn-sm" onclick="toggleCreateWs()" style="flex-shrink: 0;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New Workspace
+          </button>
+        </div>
+      </div>
+
+      <form id="createWorkspaceForm" class="card" style="display:none; padding: 32px 40px; margin-bottom: 32px; border-color: var(--primary-muted); flex-direction: column;">
+        <h3 class="t-display" style="margin-top:0; margin-bottom: 12px; color: var(--text-primary);">Create New Workspace</h3>
+        <p class="t-body" style="color: var(--text-secondary); margin-bottom: 28px;">
+          Set up a new space for your team's knowledge and workflows.
+        </p>
+        
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label" for="newWsName">Workspace Name</label>
+            <input class="form-input" type="text" id="newWsName" placeholder="e.g. Engineering Team" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="newWsProfile">Workspace Icon</label>
+            <input class="form-input" type="file" id="newWsProfile" accept="image/*" style="padding-top:7px;">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="newWsDesc">Description</label>
+          <textarea class="form-input" id="newWsDesc" rows="3" placeholder="What is this workspace for?" style="resize: vertical;"></textarea>
+        </div>
+
+        <div class="form-row-actions">
+          <button type="submit" class="btn btn-primary">Create Workspace</button>
+          <button type="button" class="btn btn-ghost" onclick="toggleCreateWs()">Cancel</button>
+        </div>
+      </form>
+
+      <div id="workspacesContainer" class="workspace-list">
+        <p style="color:var(--text-tertiary);font-size:14px;">Loading workspaces…</p>
+      </div>
+    </div>
+
+    <!-- Workspace Manager View -->
+    <div id="workspaceManagerView" style="display:none;" class="workspace-layout">
+      <!-- SIDEBAR -->
+      <aside class="workspace-sidebar">
+        <button type="button" id="backToWsListBtn" class="btn btn-ghost btn-sm" style="width:100%; justify-content:flex-start; margin-bottom: 24px;">← Back to Workspaces</button>
+        <div style="margin-bottom: 32px; padding: 0 8px;">
+          <h2 class="page-heading" id="managerWsName">Workspace</h2>
+          <div class="page-subheading" id="managerWsRole"></div>
+        </div>
+        <nav class="sidebar-nav" role="tablist">
+          <button type="button" class="sidebar-link tab-btn active" role="tab" data-tab="ai" onclick="switchWsTab('ai')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            AI Assistant
+          </button>
+          <button type="button" class="sidebar-link tab-btn" role="tab" data-tab="members" onclick="switchWsTab('members')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            Members
+          </button>
+          <button type="button" class="sidebar-link tab-btn" role="tab" data-tab="articles" onclick="switchWsTab('articles')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            Articles
+          </button>
+          <button type="button" class="sidebar-link tab-btn" role="tab" data-tab="workflows" onclick="switchWsTab('workflows')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
+            Workflows
+          </button>
+          <button type="button" class="sidebar-link tab-btn" role="tab" data-tab="settings" onclick="switchWsTab('settings')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            Settings
+          </button>
+        </nav>
+      </aside>
+
+      <!-- MAIN CONTENT -->
+      <main class="workspace-main">
+        
+        <!-- AI TAB -->
+        <div id="tab-ai" class="tab-content active" role="tabpanel">
+          <div class="ai-section" style="margin-bottom:0;">
+            <div class="tab-section-header">
+              <span class="tab-section-title">AI Knowledge Assistant</span>
+            </div>
+            <div class="ai-container card">
+              <div class="ai-search-row">
+                <input type="text" class="form-input" id="aiQueryInput" placeholder="Ask a question across articles and workflows…">
+                <button type="button" class="ai-ask-btn" id="aiAskBtn" onclick="askAI()">Ask AI</button>
+              </div>
+              <div id="aiResultsContainer"></div>
+            </div>
+          </div>
+        </div>
+
+      <!-- MEMBERS TAB -->
+      <div id="tab-members" class="tab-content active" role="tabpanel">
+        <form id="addMemberForm" class="create-ws-form" style="display:none;margin-bottom:16px;">
+          <input type="email" id="newMemberEmail" class="form-input" placeholder="User email…" required>
+          <select id="newMemberRole" class="form-input" style="width:140px;flex:none;">
+            <option value="Viewer">Viewer</option>
+            <option value="Editor">Editor</option>
+            <option value="Admin">Admin</option>
+          </select>
+          <button type="submit" class="btn btn-primary btn-sm">Add Member</button>
+        </form>
+        <table class="members-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="membersTableBody"></tbody>
+        </table>
+      </div>
+
+      <!-- ARTICLES TAB -->
+      <div id="tab-articles" class="tab-content" role="tabpanel">
+        <div id="articlesListView">
+          <div class="tab-section-header">
+            <span class="tab-section-title">Knowledge Base</span>
+            <button id="createArticleBtn" class="btn btn-ghost btn-sm" style="display:none;" onclick="openArticleEditor(null)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+              New Article
+            </button>
+          </div>
+          <div id="articlesListContainer">Loading articles…</div>
+        </div>
+
+        <div id="articleEditorView" style="display:none;">
+          <div class="tab-section-header">
+            <button type="button" class="btn btn-ghost btn-sm" onclick="closeArticleEditor()">← Back to Articles</button>
+            <span id="editorTitleMode" style="font-weight:600;font-size:15px;color:var(--text-primary);"></span>
+            <div style="flex:1;"></div>
+            <button type="button" class="btn btn-primary btn-sm" id="saveArticleBtn" style="display:none;" onclick="saveArticle()">Save</button>
+          </div>
+          <input type="hidden" id="editArticleId">
+          <input type="hidden" id="editArticleTags">
+          <div id="articleReadMode" style="display:none;">
+            <!-- ── Article Hero Header ── -->
+            <div class="article-view-header">
+              <div class="article-view-header-inner">
+                <h1 id="readArticleTitle" class="article-view-title"></h1>
+                <div id="readArticleTags" class="article-view-tags"></div>
+              </div>
+              <div class="article-view-actions">
+                <button type="button" class="btn btn-ghost btn-sm" onclick="toggleArticleDetails()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                  Details
+                </button>
+                <div id="readModeActions" style="display:none; gap:8px;">
+                  <button type="button" class="btn btn-ghost btn-sm" onclick="toggleArticleEditMode(true)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    Edit
+                  </button>
+                  <button type="button" class="btn btn-danger btn-sm remove-btn" onclick="deleteArticle()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+            <!-- ── Article Meta Strip ── -->
+            <div id="articleDetailsPanel" class="article-view-meta" style="display:none;">
+              <div class="article-view-author">
+                <div class="article-view-avatar" id="readArticleAvatarEl">?</div>
+                <div>
+                  <div class="article-view-author-label">Last updated by</div>
+                  <div class="article-view-author-name" id="readArticleAuthor"></div>
+                </div>
+              </div>
+              <div class="article-view-meta-divider"></div>
+              <div class="article-view-date-block">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span id="readArticleDate" class="article-view-date">—</span>
+              </div>
+            </div>
+            <!-- ── Article Content Body ── -->
+            <div class="article-view-body">
+              <div id="readArticleContent" class="markdown-preview article-view-content"></div>
+            </div>
+          </div>
+          <form id="articleForm" style="display:none;">
+            <div class="article-edit-header">
+              <input type="text" class="article-edit-title-input" id="editArticleTitle" placeholder="Article title…" required>
+            </div>
+            <div class="article-edit-body">
+              <textarea id="editArticleContent" aria-label="Article content editor" aria-multiline="true" placeholder="# Write your content here…"></textarea>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- WORKFLOWS TAB -->
+      <div id="tab-workflows" class="tab-content" role="tabpanel">
+        <div id="wfListView">
+          <div class="tab-section-header">
+            <span class="tab-section-title">Visual Workflows</span>
+            <button id="createWorkflowBtn" class="btn btn-ghost btn-sm" style="display:none;" onclick="showCreateWorkflowForm()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              New Workflow
+            </button>
+          </div>
+          <form id="createWorkflowFormUI" class="create-ws-form" style="display:none;margin-bottom:16px;">
+            <input type="text" id="newWfTitle" class="form-input" placeholder="Workflow title…" required>
+            <input type="text" id="newWfDesc" class="form-input" placeholder="Description">
+            <button type="submit" class="btn btn-primary btn-sm">Create</button>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="hideCreateWorkflowForm()">Cancel</button>
+          </form>
+          <div id="workflowsListContainer" class="workflow-list">Loading workflows…</div>
+        </div>
+
+        <div id="wfDetailView" style="display:none;">
+          <div class="tab-section-header">
+            <div>
+              <div class="wf-title" id="viewWfTitle"></div>
+              <div class="wf-desc" id="viewWfDesc"></div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button type="button" class="btn btn-ghost btn-sm" onclick="closeWorkflowDetail()">← Back to List</button>
+              <button id="deleteWfBtn" type="button" class="btn btn-danger btn-sm" style="display:none;" onclick="deleteWorkflow()">Delete</button>
+            </div>
+          </div>
+
+          <!-- FigJam canvas renders here -->
+          <div id="wfCanvasContainer"></div>
+
+          <!-- Add Node & Edge Forms -->
+          <div id="addNodeContainer" class="add-node-section">
+            <p class="section-label" id="addNodeFormHeader">Add Node</p>
+            <form id="addNodeForm" class="card" style="padding:20px;margin-bottom:20px;">
+              <input type="hidden" id="editNodeId">
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">Title</label>
+                  <input type="text" id="newNodeTitle" class="form-input" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Type</label>
+                  <select id="newNodeType" class="form-input">
+                    <option value="action">Action</option>
+                    <option value="decision">Decision</option>
+                    <option value="note">Note</option>
+                    <option value="end">End</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Description</label>
+                <input type="text" id="newNodeDesc" class="form-input">
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Linked Article</label>
+                <select id="newNodeArticle" class="form-input"><option value="">None</option></select>
+              </div>
+              <div style="display: flex; gap: 8px; margin-top: 16px;">
+                <button type="submit" class="btn btn-primary" id="addNodeSubmitBtn">Add Node</button>
+                <button type="button" class="btn btn-ghost" id="cancelNodeEditBtn" style="display:none;" onclick="resetNodeForm()">Cancel Edit</button>
+              </div>
+            </form>
+
+            <p class="section-label">Connect Nodes</p>
+            <form id="addEdgeForm" class="card" style="padding:20px;">
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">From Node</label>
+                  <select id="edgeFromNode" class="form-input" required><option value="">Select…</option></select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">To Node</label>
+                  <select id="edgeToNode" class="form-input" required><option value="">Select…</option></select>
+                </div>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Condition</label>
+                <input type="text" id="edgeCondition" class="form-input" placeholder="e.g. Yes, No, Approved">
+              </div>
+              <button type="submit" class="btn btn-primary" style="margin-top:16px;">Connect</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- SETTINGS TAB -->
+      <div id="tab-settings" class="tab-content" role="tabpanel">
+        <div class="tab-section-header">
+          <span class="tab-section-title">Workspace Settings</span>
+        </div>
+        <div class="settings-grid">
+          <!-- Update Workspace Details -->
+          <div id="updateWorkspaceSection" class="card settings-card" style="display:none; grid-column: 1 / -1;">
+            <h3>Update Workspace Details</h3>
+            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
+              Modify the workspace identity. Changes will be reflected for all members.
+            </p>
+            <form id="updateWorkspaceForm">
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label" for="updateWsName">Workspace Name</label>
+                  <input class="form-input" type="text" id="updateWsName" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="updateWsProfile">Workspace Icon</label>
+                  <input class="form-input" type="file" id="updateWsProfile" accept="image/*" style="padding-top:7px;">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="updateWsDesc">Description</label>
+                <textarea class="form-input" id="updateWsDesc" rows="3" style="resize: vertical;"></textarea>
+              </div>
+              <div class="form-row-actions">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card settings-card">
+            <h3>Leave Workspace</h3>
+            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
+              You will lose access to all articles and workflows in this workspace. 
+              If you are the only Owner, you must transfer ownership first.
+            </p>
+            <button class="btn btn-danger" onclick="leaveWorkspace()">Leave Workspace</button>
+          </div>
+
+          <div id="deleteWorkspaceSection" class="card settings-card" style="display:none; border-color: var(--danger-subtle);">
+            <h3 style="color: var(--danger);">Delete Workspace</h3>
+            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
+              Permanently delete this workspace and all its content (Articles, Workflows, Members). 
+              This action cannot be undone.
+            </p>
+            <button class="btn btn-danger" onclick="deleteWorkspace()">Delete Workspace</button>
+          </div>
+        </div>
+      </div>
+      </main> <!-- end workspace-main -->
+    </div> <!-- end workspaceManagerView -->
+  </section>
+
+</main><!-- /.page-body -->
+
+<script src="js/auth.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/profile.js"></script>
+<script src="js/workspaces.js"></script>
+<script src="js/articles.js"></script>
+<script src="js/workflow-canvas.js"></script>
+<script src="js/workflows.js"></script>
+<script src="js/ai.js"></script>
+
+<script>
+  /* ── Theme Toggle ─────────────────────────────────── */
+  function initThemeIcons() {
+      const current = document.documentElement.getAttribute("data-theme");
+      document.getElementById("themeIconDark").style.display = current === "light" ? "block" : "none";
+      document.getElementById("themeIconLight").style.display = current === "dark" ? "block" : "none";
+  }
+  
+  function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute("data-theme") || "dark";
+      const newTheme = currentTheme === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", newTheme);
+      localStorage.setItem("theme", newTheme);
+      initThemeIcons();
+  }
+  
+  document.addEventListener("DOMContentLoaded", initThemeIcons);
+
+  /* ── Create workspace form toggle ─────────────────── */
+  function toggleCreateWs() {
+    const f = document.getElementById('createWorkspaceForm');
+    f.style.display = f.style.display === 'none' ? 'flex' : 'none';
+  }
+
+  /* ── Edit profile helpers ──────────────────────────── */
+  function showEditForm() {
+    document.getElementById('userInfo').style.display  = 'none';
+    document.getElementById('editForm').style.display  = 'block';
+  }
+  function cancelEdit() {
+    document.getElementById('userInfo').style.display  = 'block';
+    document.getElementById('editForm').style.display  = 'none';
+  }
+
+
+</script>
+
+</body>
+</html>
