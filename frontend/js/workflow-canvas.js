@@ -96,9 +96,14 @@ function _createNodeEl(n) {
                      stroke-linecap="round" stroke-linejoin="round">${cfg.icon}</svg>
                 ${cfg.label}
             </span>
-            ${canDel ? `<button class="wf-node-del-btn" onclick="event.stopPropagation();deleteNode(${n.id})" aria-label="Delete node">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>` : ''}
+            <div style="display: flex; gap: 4px; align-items: center;">
+                ${currentUserRole !== 'Viewer' ? `<button class="wf-node-edit-btn" onclick="event.stopPropagation();editNode(_wfNodes.find(node=>node.id===${n.id}))" aria-label="Edit node" title="Edit Node">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>` : ''}
+                ${canDel ? `<button class="wf-node-del-btn" onclick="event.stopPropagation();deleteNode(${n.id})" aria-label="Delete node" title="Delete Node">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>` : ''}
+            </div>
         </div>
         <div class="wf-node-title">${n.title}</div>
         ${n.description ? `<div class="wf-node-desc">${n.description}</div>` : ''}
@@ -112,6 +117,19 @@ function _createNodeEl(n) {
         if (e.target.closest('.wf-node-del-btn')) return;
         e.stopPropagation();
         _startNodeDrag(e, n, el);
+    });
+
+    // Click to edit
+    el.addEventListener('click', e => {
+        if (e.target.closest('.wf-node-del-btn')) return;
+        // Don't trigger if we were dragging (small threshold)
+        if (el.getAttribute('data-dragged') === 'true') {
+            el.removeAttribute('data-dragged');
+            return;
+        }
+        if (typeof editNode === 'function') {
+            editNode(n);
+        }
     });
 
     return el;
@@ -251,6 +269,9 @@ function _startNodeDrag(e, nodeData, el) {
     const onMove = ev => {
         const dx = (ev.clientX - startX) / _wfScale;
         const dy = (ev.clientY - startY) / _wfScale;
+        if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+            el.setAttribute('data-dragged', 'true');
+        }
         nodeData.position_x = Math.max(0, origX + dx);
         nodeData.position_y = Math.max(0, origY + dy);
         el.style.left = nodeData.position_x + 'px';

@@ -31,7 +31,7 @@ async function loadWorkspaces() {
                 }
 
                 return `
-                    <div class="workspace-card" data-id="${ws.id}" data-role="${ws.user_role}" data-name="${ws.name}" style="flex-wrap: wrap;">
+                    <div class="workspace-card" data-id="${ws.id}" data-role="${ws.user_role}" data-name="${ws.name}" data-description="${ws.description || ''}" data-image="${ws.profile_image || ''}" style="flex-wrap: wrap;">
                         <div class="workspace-icon" style="overflow: hidden; display: flex; align-items: center; justify-content: center; background: var(--bg-surface);">
                             ${iconHtml}
                         </div>
@@ -69,7 +69,7 @@ async function loadWorkspaces() {
             if (targetWsId && !currentWorkspaceId) {
                 const ws = workspaces.find(w => w.id == targetWsId);
                 if (ws) {
-                    manageWorkspace(ws.id, ws.user_role, ws.name).then(() => {
+                    manageWorkspace(ws.id, ws.user_role, ws.name, ws.description, ws.profile_image).then(() => {
                         if (targetArtId) {
                             setTimeout(() => {
                                 switchWsTab('articles');
@@ -86,7 +86,7 @@ async function loadWorkspaces() {
     }
 }
 
-async function manageWorkspace(id, role, name) {
+async function manageWorkspace(id, role, name, description = '', image = '') {
     currentWorkspaceId = id;
     currentUserRole = role;
 
@@ -99,21 +99,31 @@ async function manageWorkspace(id, role, name) {
     // Show add member form & Create article button based on role
     const addForm = document.getElementById("addMemberForm");
     const createArtBtn = document.getElementById("createArticleBtn");
+    const deleteWsSection = document.getElementById("deleteWorkspaceSection");
+    const updateWsSection = document.getElementById("updateWorkspaceSection");
+
     if (role === 'Owner' || role === 'Admin') {
         if (addForm) addForm.style.display = "flex";
         if (createArtBtn) createArtBtn.style.display = "block";
+        if (updateWsSection) {
+            updateWsSection.style.display = "block";
+            document.getElementById("updateWsName").value = name;
+            document.getElementById("updateWsDesc").value = description;
+            document.getElementById("updateWsProfile").value = ''; // Reset file input
+        }
         document.getElementById("createWorkflowBtn").style.display = "block";
         document.getElementById("deleteWfBtn").style.display = "inline-block";
-    } else if (role === 'Editor') {
-        if (addForm) addForm.style.display = "none";
-        if (createArtBtn) createArtBtn.style.display = "block";
-        document.getElementById("createWorkflowBtn").style.display = "block";
-        document.getElementById("deleteWfBtn").style.display = "none";
     } else {
         if (addForm) addForm.style.display = "none";
-        if (createArtBtn) createArtBtn.style.display = "none";
-        document.getElementById("createWorkflowBtn").style.display = "none";
+        if (createArtBtn) createArtBtn.style.display = (role === 'Editor') ? "block" : "none";
+        if (updateWsSection) updateWsSection.style.display = "none";
+        
+        document.getElementById("createWorkflowBtn").style.display = (role === 'Editor') ? "block" : "none";
         document.getElementById("deleteWfBtn").style.display = "none";
+    }
+
+    if (deleteWsSection) {
+        deleteWsSection.style.display = (role === 'Owner') ? 'block' : 'none';
     }
 
     // Node/Edge controls for Editor+
@@ -127,6 +137,65 @@ async function manageWorkspace(id, role, name) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    // Update Workspace Form
+    const updateWsForm = document.getElementById("updateWorkspaceForm");
+    if (updateWsForm) {
+        updateWsForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            if (!currentWorkspaceId) return;
+
+            const token = getToken();
+            const name = document.getElementById("updateWsName").value;
+            const description = document.getElementById("updateWsDesc").value;
+            const fileInput = document.getElementById("updateWsProfile");
+
+            const formData = new FormData();
+            formData.append("name", name);
+            formData.append("description", description);
+            if (fileInput && fileInput.files.length > 0) {
+                formData.append("profile_image", fileInput.files[0]);
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/workspaces/${currentWorkspaceId}`, {
+                    method: "PUT",
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                const contentType = res.headers.get("content-type");
+                if (res.ok) {
+                    const data = (contentType && contentType.includes("application/json")) 
+                        ? await res.json() 
+                        : await res.text();
+                    
+                    showToast("Workspace updated successfully", 'success');
+                    
+                    // Update UI immediately
+                    if (data.name) document.getElementById("managerWsName").innerText = data.name;
+                    
+                    // Refresh the list in the background
+                    await loadWorkspaces();
+                } else {
+                    let errorMessage = "Failed to update workspace";
+                    if (contentType && contentType.includes("application/json")) {
+                        const data = await res.json();
+                        errorMessage = data.message || errorMessage;
+                    } else {
+                        const text = await res.text();
+                        console.error("Server returned non-JSON error:", text);
+                    }
+                    showToast(errorMessage, 'error');
+                }
+            } catch (err) {
+                console.error("Error updating workspace", err);
+                showToast("Failed to update workspace", 'error');
+            }
+        });
+    }
+
     // Create Workspace Form
     const createWsForm = document.getElementById("createWorkspaceForm");
     if (createWsForm) {
@@ -154,7 +223,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
 
                 if (res.ok) {
-                    alert(`Successfully created ${name}`);
+                    showToast(`Successfully created ${name}`, 'success');
                     document.getElementById("newWsName").value = '';
                     document.getElementById("newWsDesc").value = '';
                     if (fileInput) fileInput.value = '';
@@ -164,10 +233,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     await loadWorkspaces();
                 } else {
                     const data = await res.json();
-                    alert(data.message);
+                    showToast(data.message, 'error');
                 }
             } catch (err) {
                 console.error("Error creating workspace", err);
+                showToast("Failed to create workspace", 'error');
             }
         });
     }
@@ -187,10 +257,12 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("workspacesContainer")?.addEventListener("click", (e) => {
         const card = e.target.closest(".workspace-card");
         if (card) {
-            const id   = card.getAttribute("data-id");
-            const role = card.getAttribute("data-role");
-            const name = card.getAttribute("data-name");
-            manageWorkspace(id, role, name);
+            const id          = card.getAttribute("data-id");
+            const role        = card.getAttribute("data-role");
+            const name        = card.getAttribute("data-name");
+            const description = card.getAttribute("data-description");
+            const image       = card.getAttribute("data-image");
+            manageWorkspace(id, role, name, description, image);
         }
     });
 });
@@ -224,13 +296,21 @@ async function loadMembers() {
                 let actionHtml = '';
                 if (canEdit || currentUserRole === 'Owner') {
                     actionHtml = `
-                        <select class="action-select" onchange="updateMemberRole(${m.id}, this.value)">
-                            <option value="Viewer"  ${m.role === 'Viewer'  ? 'selected' : ''}>Viewer</option>
-                            <option value="Editor"  ${m.role === 'Editor'  ? 'selected' : ''}>Editor</option>
-                            <option value="Admin"   ${m.role === 'Admin'   ? 'selected' : ''}>Admin</option>
-                            ${currentUserRole === 'Owner' ? `<option value="Owner" ${m.role === 'Owner' ? 'selected' : ''}>Owner</option>` : ''}
-                        </select>
-                        <button class="btn btn-danger btn-sm" onclick="removeMember(${m.id})" style="margin:0;">Remove</button>
+                        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                            <select class="action-select" onchange="updateMemberRole(${m.id}, this.value)">
+                                <option value="Viewer"  ${m.role === 'Viewer'  ? 'selected' : ''}>Viewer</option>
+                                <option value="Editor"  ${m.role === 'Editor'  ? 'selected' : ''}>Editor</option>
+                                <option value="Admin"   ${m.role === 'Admin'   ? 'selected' : ''}>Admin</option>
+                                ${currentUserRole === 'Owner' ? `<option value="Owner" ${m.role === 'Owner' ? 'selected' : ''}>Owner</option>` : ''}
+                            </select>
+                            <button class="btn btn-danger btn-sm" onclick="removeMember(${m.id})" style="margin:0;">Remove</button>
+                            ${currentUserRole === 'Owner' && m.role !== 'Owner' ? `
+                                <button class="btn btn-ghost btn-sm" onclick="transferOwnership(${m.id})" title="Transfer Ownership">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><polyline points="16 11 12 11 12 7"></polyline><polyline points="23 8 19 12 15 8"></polyline></svg>
+                                    Transfer
+                                </button>
+                            ` : ''}
+                        </div>
                     `;
                 } else {
                     actionHtml = `<span style="color:var(--text-tertiary);font-size:12px;">No access</span>`;
@@ -260,6 +340,83 @@ async function loadMembers() {
     }
 }
 
+async function leaveWorkspace() {
+    const confirmed = await showConfirm("Leave Workspace", "Are you sure you want to leave this workspace? You will lose access to all its content.");
+    if (!confirmed) return;
+
+    const token = getToken();
+    try {
+        const res = await fetch(`${API_BASE}/workspaces/${currentWorkspaceId}/leave`, {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (res.ok) {
+            showToast("You have successfully left the workspace.", "success");
+            setTimeout(() => window.location.reload(), 1500);
+        } else {
+            const data = await res.json();
+            showToast(data.message, "error");
+        }
+    } catch (err) {
+        console.error("Error leaving workspace", err);
+    }
+}
+
+async function deleteWorkspace() {
+    const wsName = document.getElementById("managerWsName").innerText;
+    const confirmation = await showPrompt("Delete Workspace", `To confirm deletion, please type the name of the workspace: <strong>${wsName}</strong>`, wsName);
+    if (!confirmation) return;
+
+    if (confirmation !== wsName) {
+        showToast("Confirmation failed. Workspace name does not match.", "error");
+        return;
+    }
+
+    const token = getToken();
+    try {
+        const res = await fetch(`${API_BASE}/workspaces/${currentWorkspaceId}`, {
+            method: "DELETE",
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (res.ok) {
+            showToast("Workspace deleted successfully.", "success");
+            setTimeout(() => window.location.reload(), 1500);
+        } else {
+            const data = await res.json();
+            showToast(data.message, "error");
+        }
+    } catch (err) {
+        console.error("Error deleting workspace", err);
+    }
+}
+
+async function transferOwnership(userId) {
+    const confirmed = await showConfirm("Transfer Ownership", "Are you sure you want to transfer ownership? You will become an Admin and lose Owner privileges.");
+    if (!confirmed) return;
+
+    const token = getToken();
+    try {
+        const res = await fetch(`${API_BASE}/workspaces/${currentWorkspaceId}/members/${userId}/transfer-ownership`, {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (res.ok) {
+            showToast("Ownership transferred successfully.", "success");
+            await loadWorkspaces();
+            // We need to refresh the current view or go back to list
+            document.getElementById("backToWsListBtn").click();
+        } else {
+            const data = await res.json();
+            showToast(data.message, "error");
+        }
+    } catch (err) {
+        console.error("Error transferring ownership", err);
+    }
+}
+
 document.getElementById("addMemberForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     if (!currentWorkspaceId) return;
@@ -279,11 +436,12 @@ document.getElementById("addMemberForm").addEventListener("submit", async (e) =>
         });
 
         if (res.ok) {
+            showToast(`Added ${email} to workspace`, "success");
             document.getElementById("newMemberEmail").value = '';
             await loadMembers();
         } else {
             const data = await res.json();
-            alert(data.message);
+            showToast(data.message, "error");
         }
     } catch (err) {
         console.error("Error adding member", err);
@@ -303,10 +461,11 @@ async function updateMemberRole(userId, newRole) {
         });
 
         if (res.ok) {
+            showToast("Member role updated", "success");
             await loadMembers();
         } else {
             const data = await res.json();
-            alert(data.message);
+            showToast(data.message, "error");
             await loadMembers();
         }
     } catch (err) {
@@ -315,7 +474,8 @@ async function updateMemberRole(userId, newRole) {
 }
 
 async function removeMember(userId) {
-    if (!confirm("Are you sure you want to remove this member?")) return;
+    const confirmed = await showConfirm("Remove Member", "Are you sure you want to remove this member?");
+    if (!confirmed) return;
 
     const token = getToken();
     try {
@@ -325,10 +485,11 @@ async function removeMember(userId) {
         });
 
         if (res.ok) {
+            showToast("Member removed", "success");
             await loadMembers();
         } else {
             const data = await res.json();
-            alert(data.message);
+            showToast(data.message, "error");
         }
     } catch (err) {
         console.error("Error removing member", err);

@@ -1,66 +1,77 @@
-# Kimis System - Technical Documentation
+# KiMiS System Usage Guide
 
-## 1. Overview
-KiMiS (Knowledge Intelligence Management System) is a modular web application designed for workspace collaboration, knowledge management, and visual process mapping.
+This document outlines the core features of the Knowledge Intelligence Management System (KiMiS).
 
-The system is built with a **Node.js/Express** backend and a **Vanilla HTML/CSS/JS** frontend. It follows a modular architecture where features are separated into dedicated route and module files.
+==========================================================
+1. WORKSPACE MANAGEMENT
+==========================================================
+Access these via the "Settings" tab in your Workspace sidebar.
 
-## 2. Architecture & File Structure
-The project has been refactored from a monolithic script into a clean, modular structure:
-- **`server.js`**: Slim entry point that bootstraps the Express app.
-- **`config/db.js`**: Manages the PostgreSQL connection pool.
-- **`middleware/`**: Contains `auth.js` (JWT verification) and `rbac.js` (Workspace-level permissions).
-- **`routes/`**: Feature-specific API endpoints (`auth`, `users`, `workspaces`, `members`, `articles`, `workflows`).
-- **`frontend/`**: Separates the UI into HTML, `css/dashboard.css`, and modular JS files in `js/`.
+• LEAVE WORKSPACE:
+  - Viewers/Editors can leave at any time.
+  - Admins can leave if another Admin/Owner remains.
+  - Owners can only leave if there is at least one other Owner.
+  - Action: Click "Leave Workspace" in Settings.
 
-## 3. Database Schema (PostgreSQL)
-The system uses a relational PostgreSQL database with the following core tables:
-- **`users`**: Auth data (email, password) and global roles (admin/user).
-- **`workspaces`**: Logical containers for teams and projects.
-- **`workspace_memberships`**: Links users to workspaces with specific roles.
-- **`articles`**: Knowledge base entries (Markdown supported).
-- **`workflows`**: Metadata for processes.
-- **`workflow_nodes`**: Steps in a process (action, decision, start, end, etc.).
-- **`workflow_edges`**: Directional connections between nodes with optional conditions.
+• DELETE WORKSPACE (Owner Only):
+  - Permanently removes all Articles, Workflows, and Members.
+  - Action: Type the workspace name in the prompt to confirm.
 
-## 4. Authentication & Security
-- **JWT (JSON Web Tokens)**: Stateless authentication. Tokens are stored in the browser's `localStorage` or `sessionStorage`.
-- **Stateless Validation**: Backend verifies the token signature on every protected request.
-- **Prepared Statements**: All database queries use parameterization (e.g., `$1, $2`) to prevent SQL Injection.
-- **Security Middleware**: `authenticateToken` ensures the user is logged in before accessing any feature.
+• TRANSFER OWNERSHIP (Owner Only):
+  - Give "Owner" status to another member.
+  - You will be downgraded to "Admin" after transfer.
+  - Action: Go to "Members" tab -> Click "Transfer" next to a member.
 
-## 5. Role-Based Access Control (RBAC)
-KiMiS implements a dual-layer RBAC system:
-### Layer 1: Global Roles
-- **Admin**: Can access system-wide sensitive data and manage global users.
-- **User**: Standard access.
+• MEMBER ROLES:
+  - Owner: Full control, can delete/transfer.
+  - Admin: Can manage members (Editor/Viewer) and all content.
+  - Editor: Can create/edit Articles and Workflows.
+  - Viewer: Read-only access to all content.
 
-### Layer 2: Workspace Roles
-Permission is checked per workspace using the `checkWorkspaceRole` middleware:
-- **Owner**: Full control over the workspace, articles, and workflows. Can delete the workspace and manage all members.
-- **Admin**: Can manage most members, articles, and workflows.
-- **Editor**: Can create and edit articles/workflows but cannot manage workspace membership.
-- **Viewer**: Read-only access to articles and workflows within the workspace.
+==========================================================
+2. VISUAL WORKFLOWS: A STEP-BY-STEP SAMPLE
+==========================================================
+Workflows help you map out complex processes and link them to documentation.
 
-## 6. Knowledge Articles (KB)
-The KB module allows users to document procedures and information:
-- **Markdown Support**: Uses `marked.js` on the frontend for rich text rendering.
-- **Versioning**: Track updates through `created_at` and `updated_at`.
-- **Drafts/Archiving**: Articles can be "deleted" (soft-delete/archive) without removing them from the DB.
-- **Linkage**: Articles can be linked to specific nodes in a visual workflow for contextual documentation.
+SAMPLE SCENARIO: "Software Release Process"
+-------------------------------------------
 
-## 7. Visual Workflow Engine (Graph-Based)
-Unlike a simple list, KiMiS uses a directed graph to represent processes:
-- **Nodes**: Represent actions, decisions, start/end points, and notes.
-- **Edges**: Directional arrows connecting nodes.
-- **Conditional Branching**: Edges can carry "conditions" (e.g., "Yes/No") to represent decision paths in a process.
-- **Referential Integrity**: Deleting a workflow cascade-deletes its nodes and edges. Deleting a node removes its inbound and outbound edges.
-- **Visual Persistence**: Node coordinates (`position_x`, `position_y`) are saved to allow a persistent visual layout on the canvas.
+Step 1: Create the Workflow
+- Go to "Workflows" tab -> Click "New Workflow".
+- Title: "App Production Release"
+- Description: "Standard procedure for deploying new features."
 
-## 8. API Endpoints Summary
-- **/api/auth**: `/login`, `/register`, `/health`
-- **/api/me**: Profile management and global admin data.
-- **/api/workspaces**: CRUD for workspaces.
-- **/api/workspaces/:wsId/members**: Manage team members and roles.
-- **/api/workspaces/:wsId/articles**: KB management.
-- **/api/workspaces/:wsId/workflows**: Visual workflow management including nodes and edges.
+Step 2: Add Nodes (The Shapes)
+Use the "Add Node" form in the sidebar:
+1. Title: "Code Review" | Type: "Action" | Description: "Peer review on GitHub"
+2. Title: "Tests Pass?" | Type: "Decision" | Description: "Check CI/CD pipeline"
+3. Title: "Deploy to Staging" | Type: "Action" | Description: "Internal verification"
+4. Title: "Release to Prod" | Type: "End" | Description: "Public live"
+
+Step 3: Connect Nodes (The Lines)
+Use the "Connect Nodes" form:
+- From: "Code Review" -> To: "Tests Pass?" | Condition: "Complete"
+- From: "Tests Pass?" -> To: "Deploy to Staging" | Condition: "Yes"
+- From: "Deploy to Staging" -> To: "Release to Prod" | Condition: "Verified"
+
+Step 4: The Power of Linking
+- Create an Article titled "Deployment Checklist" with your server commands.
+- Edit your "Deploy to Staging" node and select the "Deployment Checklist" article in the dropdown.
+- Now, anyone viewing the graph can click that node to read the specific instructions!
+
+==========================================================
+3. AI KNOWLEDGE ASSISTANT
+==========================================================
+- Use the "AI Assistant" tab to ask questions in natural language.
+- Examples:
+  - "What are the steps for the software release?"
+  - "Who is the owner of this workspace?"
+  - "Summarize the deployment checklist."
+- The AI will search your Articles and Workflow nodes to provide a grounded answer.
+
+==========================================================
+4. CUSTOM UI TIPS
+==========================================================
+- Toasts: Watch the bottom-right corner for success/error messages.
+- Modals: All sensitive actions (Delete, Leave) now use professional dark-themed dialogs instead of browser popups.
+- Theme: Toggle between Light and Dark mode using the sun/moon icon in the top navbar.

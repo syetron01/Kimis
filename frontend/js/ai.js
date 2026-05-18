@@ -22,7 +22,7 @@ async function askAI() {
 
     const workspaceId = currentWorkspaceId;
     if (!workspaceId) {
-        alert('Please select a workspace first.');
+        showToast('Please select a workspace first.', 'error');
         return;
     }
 

@@ -78,13 +78,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
 
                 if (res.ok) {
+                    showToast("Workflow created", "success");
                     document.getElementById("newWfTitle").value = '';
                     document.getElementById("newWfDesc").value = '';
                     hideCreateWorkflowForm();
                     await loadWorkflows();
                 } else {
                     const data = await res.json();
-                    alert(data.message);
+                    showToast(data.message, "error");
                 }
             } catch (err) {
                 console.error("Error creating workflow", err);
@@ -100,34 +101,74 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!currentWorkflowId) return;
             const token = getToken();
 
+            const nodeId = document.getElementById("editNodeId").value;
+            const isEdit = !!nodeId;
+
             const payload = {
                 title: document.getElementById("newNodeTitle").value,
                 description: document.getElementById("newNodeDesc").value,
                 type: document.getElementById("newNodeType").value,
-                linked_article_id: document.getElementById("newNodeArticle").value || null,
-                position_x: Math.random() * 400 + 50,
-                position_y: (currentGraphNodes.length) * 100 + 50
+                linked_article_id: document.getElementById("newNodeArticle").value || null
             };
 
+            if (!isEdit) {
+                payload.position_x = Math.random() * 400 + 50;
+                payload.position_y = (currentGraphNodes.length) * 100 + 50;
+            }
+
             try {
-                const res = await fetch(`${API_BASE}/workspaces/${currentWorkspaceId}/workflows/${currentWorkflowId}/nodes`, {
-                    method: "POST",
+                const url = isEdit 
+                    ? `${API_BASE}/workspaces/${currentWorkspaceId}/workflows/${currentWorkflowId}/nodes/${nodeId}`
+                    : `${API_BASE}/workspaces/${currentWorkspaceId}/workflows/${currentWorkflowId}/nodes`;
+                
+                const res = await fetch(url, {
+                    method: isEdit ? "PUT" : "POST",
                     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
                     body: JSON.stringify(payload)
                 });
                 if (res.ok) {
-                    document.getElementById("newNodeTitle").value = '';
-                    document.getElementById("newNodeDesc").value = '';
-                    document.getElementById("newNodeArticle").value = '';
+                    showToast(isEdit ? "Node updated" : "Node added", "success");
+                    resetNodeForm();
                     await openWorkflow(currentWorkflowId);
                 } else {
                     const data = await res.json();
-                    alert(data.message);
+                    showToast(data.message, "error");
                 }
             } catch (err) { console.error(err); }
         });
     }
+});
 
+function resetNodeForm() {
+    document.getElementById("editNodeId").value = "";
+    document.getElementById("newNodeTitle").value = "";
+    document.getElementById("newNodeDesc").value = "";
+    document.getElementById("newNodeType").value = "action";
+    document.getElementById("newNodeArticle").value = "";
+    
+    document.getElementById("addNodeFormHeader").innerText = "Add Node";
+    document.getElementById("addNodeSubmitBtn").innerText = "Add Node";
+    document.getElementById("cancelNodeEditBtn").style.display = "none";
+}
+
+function editNode(node) {
+    if (currentUserRole === 'Viewer') return;
+    
+    document.getElementById("editNodeId").value = node.id;
+    document.getElementById("newNodeTitle").value = node.title;
+    document.getElementById("newNodeDesc").value = node.description || "";
+    document.getElementById("newNodeType").value = node.type;
+    document.getElementById("newNodeArticle").value = node.linked_article_id || "";
+
+    document.getElementById("addNodeFormHeader").innerText = "Edit Node";
+    document.getElementById("addNodeSubmitBtn").innerText = "Update Node";
+    document.getElementById("cancelNodeEditBtn").style.display = "inline-block";
+    
+    // Scroll form into view
+    document.getElementById("addNodeContainer").scrollIntoView({ behavior: 'smooth' });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
     // Add Edge Form
     const addEdgeForm = document.getElementById("addEdgeForm");
     if (addEdgeForm) {
@@ -140,7 +181,10 @@ document.addEventListener("DOMContentLoaded", () => {
             const to_node_id = parseInt(document.getElementById("edgeToNode").value);
             const condition = document.getElementById("edgeCondition").value || null;
 
-            if (!from_node_id || !to_node_id) { alert("Select both nodes."); return; }
+            if (!from_node_id || !to_node_id) { 
+                showToast("Select both nodes.", "error"); 
+                return; 
+            }
 
             try {
                 const res = await fetch(`${API_BASE}/workspaces/${currentWorkspaceId}/workflows/${currentWorkflowId}/edges`, {
@@ -149,11 +193,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     body: JSON.stringify({ from_node_id, to_node_id, condition })
                 });
                 if (res.ok) {
+                    showToast("Connection created", "success");
                     document.getElementById("edgeCondition").value = '';
                     await openWorkflow(currentWorkflowId);
                 } else {
                     const data = await res.json();
-                    alert(data.message);
+                    showToast(data.message, "error");
                 }
             } catch (err) { console.error(err); }
         });
@@ -219,10 +264,16 @@ function renderNodes(nodes) {
                             <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${cfg.icon}</svg>
                             ${cfg.label}
                         </span>
-                        ${canDelete ? `
-                            <button class="node-delete-btn" onclick="deleteNode(${n.id})" aria-label="Delete node">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-                            </button>` : ''}
+                        <div style="display: flex; gap: 4px;">
+                            ${currentUserRole !== 'Viewer' ? `
+                                <button class="node-delete-btn" onclick="editNode(currentGraphNodes.find(node=>node.id===${n.id}))" aria-label="Edit node" title="Edit Node">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                </button>` : ''}
+                            ${canDelete ? `
+                                <button class="node-delete-btn" onclick="deleteNode(${n.id})" aria-label="Delete node" title="Delete Node">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                                </button>` : ''}
+                        </div>
                     </div>
                     <div class="node-title">${n.title}</div>
                     ${n.description ? `<div class="node-description">${n.description}</div>` : ''}
@@ -306,35 +357,43 @@ async function populateArticleDropdown() {
 
 
 async function deleteNode(nodeId) {
-    if (!confirm("Delete this node? All connected edges will also be removed.")) return;
+    const confirmed = await showConfirm("Delete Node", "Delete this node? All connected edges will also be removed.");
+    if (!confirmed) return;
     const token = getToken();
     try {
         await fetch(`${API_BASE}/workspaces/${currentWorkspaceId}/workflows/${currentWorkflowId}/nodes/${nodeId}`, {
             method: "DELETE", headers: { "Authorization": `Bearer ${token}` }
         });
+        showToast("Node deleted", "success");
         await openWorkflow(currentWorkflowId);
     } catch (err) { }
 }
 
 async function deleteEdge(edgeId) {
-    if (!confirm("Remove this connection?")) return;
+    const confirmed = await showConfirm("Remove Connection", "Remove this connection?");
+    if (!confirmed) return;
     const token = getToken();
     try {
         await fetch(`${API_BASE}/workspaces/${currentWorkspaceId}/workflows/${currentWorkflowId}/edges/${edgeId}`, {
             method: "DELETE", headers: { "Authorization": `Bearer ${token}` }
         });
+        showToast("Connection removed", "success");
         await openWorkflow(currentWorkflowId);
     } catch (err) { }
 }
 
 async function deleteWorkflow() {
-    if (!confirm("Delete this ENTIRE workflow? This cannot be undone.")) return;
+    const confirmed = await showConfirm("Delete Workflow", "Delete this ENTIRE workflow? This cannot be undone.");
+    if (!confirmed) return;
     const token = getToken();
     try {
         const res = await fetch(`${API_BASE}/workspaces/${currentWorkspaceId}/workflows/${currentWorkflowId}`, {
             method: "DELETE", headers: { "Authorization": `Bearer ${token}` }
         });
-        if (res.ok) closeWorkflowDetail();
+        if (res.ok) {
+            showToast("Workflow deleted", "success");
+            closeWorkflowDetail();
+        }
     } catch (err) { }
 }
 

@@ -6,8 +6,16 @@ const { requireWorkspaceRole } = require('../middleware/rbac');
 const multer = require('multer');
 const path = require('path');
 
+const fs = require('fs');
+
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, 'uploads/'),
+    destination: (req, file, cb) => {
+        const uploadPath = path.join(__dirname, '..', 'uploads');
+        if (!fs.existsSync(uploadPath)) {
+            fs.mkdirSync(uploadPath, { recursive: true });
+        }
+        cb(null, uploadPath);
+    },
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
         cb(null, 'workspace_profile-' + uniqueSuffix + path.extname(file.originalname));
@@ -15,7 +23,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 5 * 1024 * 1024 },
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
     fileFilter: (req, file, cb) => {
         if (!file.mimetype.startsWith('image/')) return cb(new Error('Only images are allowed'));
         cb(null, true);
@@ -51,13 +59,55 @@ router.post("/", authenticateToken, upload.single('profile_image'), async (req, 
         res.status(201).json({ message: "Workspace created", workspaceId });
     } catch (err) {
         await client.query('ROLLBACK');
-        console.error(err);
+        console.error("Error creating workspace:", err);
         res.status(500).json({ message: "Server error" });
     } finally {
         client.release();
     }
 });
 
+// PUT /api/workspaces/:workspaceId — Update workspace details
+router.put("/:workspaceId", authenticateToken, upload.single('profile_image'), requireWorkspaceRole('Admin'), async (req, res) => {
+    const { workspaceId } = req.params;
+    const { name, description } = req.body;
+
+    if (!name) return res.status(400).json({ message: "Workspace name is required" });
+
+    try {
+        // Get current workspace details to handle image replacement
+        const currentWs = await pool.query("SELECT profile_image FROM workspaces WHERE id = $1", [workspaceId]);
+        if (currentWs.rows.length === 0) return res.status(404).json({ message: "Workspace not found" });
+
+        const oldImage = currentWs.rows[0].profile_image;
+        let profileImage = oldImage;
+
+        if (req.file) {
+            profileImage = `/uploads/${req.file.filename}`;
+
+            // Delete old image file if it exists and is different
+            if (oldImage && oldImage.startsWith('/uploads/')) {
+                try {
+                    const oldPath = path.join(__dirname, '..', oldImage);
+                    if (fs.existsSync(oldPath)) {
+                        fs.unlinkSync(oldPath);
+                    }
+                } catch (unlinkErr) {
+                    console.error("Failed to delete old workspace icon:", unlinkErr);
+                }
+            }
+        }
+
+        await pool.query(
+            "UPDATE workspaces SET name = $1, description = $2, profile_image = $3 WHERE id = $4",
+            [name.trim(), description, profileImage, workspaceId]
+        );
+
+        res.json({ message: "Workspace updated successfully", name, description, profileImage });
+    } catch (err) {
+        console.error("Error updating workspace:", err);
+        res.status(500).json({ message: "Server error" });
+    }
+});
 // GET /api/workspaces — List user's workspaces
 router.get("/", authenticateToken, async (req, res) => {
     try {
@@ -88,6 +138,77 @@ router.get("/:workspaceId", authenticateToken, requireWorkspaceRole('Viewer'), a
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Server error" });
+    }
+});
+
+// POST /api/workspaces/:workspaceId/leave — Current user leaves workspace
+router.post("/:workspaceId/leave", authenticateToken, requireWorkspaceRole('Viewer'), async (req, res) => {
+    const { workspaceId } = req.params;
+    const userId = req.user.id;
+    const role = req.workspaceRole;
+
+    try {
+        // Validation rules
+        if (role === 'Owner') {
+            const owners = await pool.query(
+                "SELECT COUNT(*) FROM workspace_memberships WHERE workspace_id = $1 AND role = 'Owner'",
+                [workspaceId]
+            );
+            if (parseInt(owners.rows[0].count) <= 1) {
+                return res.status(400).json({ message: "Owner cannot leave if they are the last remaining Owner" });
+            }
+        } else if (role === 'Admin') {
+            const adminsOrOwners = await pool.query(
+                "SELECT COUNT(*) FROM workspace_memberships WHERE workspace_id = $1 AND role IN ('Owner', 'Admin')",
+                [workspaceId]
+            );
+            if (parseInt(adminsOrOwners.rows[0].count) <= 1) {
+                return res.status(400).json({ message: "Admin can leave only if another Admin or Owner still exists" });
+            }
+        }
+
+        await pool.query(
+            "DELETE FROM workspace_memberships WHERE user_id = $1 AND workspace_id = $2",
+            [userId, workspaceId]
+        );
+        res.json({ message: "You have left the workspace" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
+// DELETE /api/workspaces/:workspaceId — Delete workspace (Owner only)
+router.delete("/:workspaceId", authenticateToken, requireWorkspaceRole('Owner'), async (req, res) => {
+    const { workspaceId } = req.params;
+
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+
+        // Based on the requirement: "Deleting this workspace will permanently remove: Articles, Workflows, Members, Workflow Nodes, Workspace history"
+        // We rely on CASCADE if configured, or delete manually.
+        // Let's do manual deletions for safety and clarity if CASCADE is not fully set up.
+        
+        await client.query("DELETE FROM workflow_edges WHERE workflow_id IN (SELECT id FROM workflows WHERE workspace_id = $1)", [workspaceId]);
+        await client.query("DELETE FROM workflow_nodes WHERE workflow_id IN (SELECT id FROM workflows WHERE workspace_id = $1)", [workspaceId]);
+        await client.query("DELETE FROM workflows WHERE workspace_id = $1", [workspaceId]);
+        
+        await client.query("DELETE FROM article_tags WHERE article_id IN (SELECT id FROM articles WHERE workspace_id = $1)", [workspaceId]);
+        await client.query("DELETE FROM article_versions WHERE article_id IN (SELECT id FROM articles WHERE workspace_id = $1)", [workspaceId]);
+        await client.query("DELETE FROM articles WHERE workspace_id = $1", [workspaceId]);
+        
+        await client.query("DELETE FROM workspace_memberships WHERE workspace_id = $1", [workspaceId]);
+        await client.query("DELETE FROM workspaces WHERE id = $1", [workspaceId]);
+
+        await client.query('COMMIT');
+        res.json({ message: "Workspace deleted successfully" });
+    } catch (err) {
+        await client.query('ROLLBACK');
+        console.error(err);
+        res.status(500).json({ message: "Server error" });
+    } finally {
+        client.release();
     }
 });
 

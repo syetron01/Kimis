@@ -16,7 +16,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 // Instantiate Gemini client once (module-level singleton)
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// gemini-2.5-flash: confirmed available, fast, free tier
+// gemini-2.5-flash: confirmed existing in your environment
 const MODEL_NAME = 'gemini-2.5-flash';
 
 /**

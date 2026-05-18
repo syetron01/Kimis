@@ -63,20 +63,24 @@ router.put("/:userId", authenticateToken, requireWorkspaceRole('Admin'), async (
         if (currentMember.rows.length === 0) return res.status(404).json({ message: "Member not found" });
         const currentRole = currentMember.rows[0].role;
 
-        if (currentRole === 'Owner' && req.workspaceRole !== 'Owner') {
-            return res.status(403).json({ message: "Admin cannot modify an Owner's role" });
-        }
-        if (newRole === 'Owner' && req.workspaceRole !== 'Owner') {
-            return res.status(403).json({ message: "Only an Owner can assign the Owner role" });
+        // Admin rules
+        if (req.workspaceRole === 'Admin') {
+            if (currentRole === 'Owner' || currentRole === 'Admin') {
+                return res.status(403).json({ message: "Admin cannot modify an Owner or another Admin" });
+            }
+            if (newRole === 'Owner' || newRole === 'Admin') {
+                return res.status(403).json({ message: "Admin can only assign Editor or Viewer roles" });
+            }
         }
 
+        // Owner rules (preventing self-downgrade without transfer)
         if (currentRole === 'Owner' && newRole !== 'Owner') {
             const owners = await pool.query(
                 "SELECT COUNT(*) FROM workspace_memberships WHERE workspace_id = $1 AND role = 'Owner'",
                 [workspaceId]
             );
             if (parseInt(owners.rows[0].count) <= 1) {
-                return res.status(400).json({ message: "Cannot downgrade the only Owner of the workspace" });
+                return res.status(400).json({ message: "Cannot downgrade the only Owner of the workspace. Use Transfer Ownership instead." });
             }
         }
 
@@ -96,6 +100,10 @@ router.delete("/:userId", authenticateToken, requireWorkspaceRole('Admin'), asyn
     const { workspaceId, userId } = req.params;
 
     try {
+        if (parseInt(userId) === req.user.id) {
+            return res.status(400).json({ message: "You cannot remove yourself. Use 'Leave Workspace' instead." });
+        }
+
         const currentMember = await pool.query(
             "SELECT role FROM workspace_memberships WHERE user_id = $1 AND workspace_id = $2",
             [userId, workspaceId]
@@ -103,10 +111,14 @@ router.delete("/:userId", authenticateToken, requireWorkspaceRole('Admin'), asyn
         if (currentMember.rows.length === 0) return res.status(404).json({ message: "Member not found" });
         const currentRole = currentMember.rows[0].role;
 
-        if (currentRole === 'Owner' && req.workspaceRole !== 'Owner') {
-            return res.status(403).json({ message: "Admin cannot remove an Owner" });
+        // Admin rules
+        if (req.workspaceRole === 'Admin') {
+            if (currentRole === 'Owner' || currentRole === 'Admin') {
+                return res.status(403).json({ message: "Admin cannot remove an Owner or another Admin" });
+            }
         }
 
+        // Owner rules
         if (currentRole === 'Owner') {
             const owners = await pool.query(
                 "SELECT COUNT(*) FROM workspace_memberships WHERE workspace_id = $1 AND role = 'Owner'",
@@ -125,6 +137,52 @@ router.delete("/:userId", authenticateToken, requireWorkspaceRole('Admin'), asyn
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Server error" });
+    }
+});
+
+// POST /api/workspaces/:workspaceId/members/:userId/transfer-ownership
+router.post("/:userId/transfer-ownership", authenticateToken, requireWorkspaceRole('Owner'), async (req, res) => {
+    const { workspaceId, userId } = req.params;
+    const currentOwnerId = req.user.id;
+
+    if (parseInt(userId) === currentOwnerId) {
+        return res.status(400).json({ message: "You are already the owner" });
+    }
+
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+
+        // Check if target is a member
+        const targetMember = await client.query(
+            "SELECT role FROM workspace_memberships WHERE user_id = $1 AND workspace_id = $2",
+            [userId, workspaceId]
+        );
+        if (targetMember.rows.length === 0) {
+            await client.query('ROLLBACK');
+            return res.status(404).json({ message: "Target user is not a member of this workspace" });
+        }
+
+        // 1. Update target to Owner
+        await client.query(
+            "UPDATE workspace_memberships SET role = 'Owner' WHERE user_id = $1 AND workspace_id = $2",
+            [userId, workspaceId]
+        );
+
+        // 2. Update current owner to Admin
+        await client.query(
+            "UPDATE workspace_memberships SET role = 'Admin' WHERE user_id = $1 AND workspace_id = $2",
+            [currentOwnerId, workspaceId]
+        );
+
+        await client.query('COMMIT');
+        res.json({ message: "Ownership transferred successfully. You are now an Admin." });
+    } catch (err) {
+        await client.query('ROLLBACK');
+        console.error(err);
+        res.status(500).json({ message: "Server error" });
+    } finally {
+        client.release();
     }
 });
 

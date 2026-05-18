@@ -198,7 +198,7 @@ async function saveArticle() {
         .split(',').map(t => t.trim()).filter(t => t.length > 0);
 
     if (!title.trim()) {
-        alert("Article title is required.");
+        showToast("Article title is required.", 'error');
         return;
     }
 
@@ -218,11 +218,11 @@ async function saveArticle() {
         });
 
         if (res.ok) {
-            alert(articleId ? "Article updated!" : "Article created!");
+            showToast(articleId ? "Article updated!" : "Article created!", 'success');
             closeArticleEditor();
         } else {
             const data = await res.json();
-            alert(data.message);
+            showToast(data.message, 'error');
         }
     } catch (err) {
         console.error("Error saving article", err);
@@ -232,7 +232,8 @@ async function saveArticle() {
 async function deleteArticle() {
     const articleId = document.getElementById("editArticleId").value;
     if (!articleId) return;
-    if (!confirm("Are you sure you want to delete this article? This action cannot be undone.")) return;
+    const confirmed = await showConfirm("Delete Article", "Are you sure you want to delete this article? This action cannot be undone.");
+    if (!confirmed) return;
 
     const token = getToken();
 
@@ -243,11 +244,11 @@ async function deleteArticle() {
         });
 
         if (res.ok) {
-            alert("Article deleted.");
+            showToast("Article deleted.", 'success');
             closeArticleEditor();
         } else {
             const data = await res.json();
-            alert(data.message);
+            showToast(data.message, 'error');
         }
     } catch (err) {
         console.error("Error deleting article", err);

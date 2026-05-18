@@ -17,17 +17,6 @@ async function loadUserInfo() {
             const fullName = [data.first_name, data.last_name].filter(Boolean).join(' ') || '—';
             const initials = [data.first_name?.[0], data.last_name?.[0]].filter(Boolean).join('').toUpperCase() || '?';
 
-            // ── Navbar user info ──────────────────────────
-            setEl("userFullName",  fullName);
-            // Navbar avatar
-            populateAvatar('displayImg', 'avatarInitials', data.profile_picture, initials);
-            // Role badge in navbar
-            const roleBadge = document.getElementById("userRole");
-            if (roleBadge) {
-                roleBadge.textContent = data.role;
-                roleBadge.className   = `badge badge-${data.role === 'admin' ? 'admin' : 'viewer'}`;
-            }
-
             // ── Profile section ───────────────────────────
             setEl("profileFullName",  fullName);
             setEl("profileUsername",  data.username ? `@${data.username}` : '—');
@@ -119,6 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
 
                 if (res.ok) {
+                    showToast("Profile updated successfully", "success");
                     if (saveBtn) { saveBtn.textContent = "Saved ✓"; saveBtn.style.color = "var(--success-text)"; }
                     setTimeout(async () => {
                         await loadUserInfo();
@@ -127,12 +117,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     }, 1500);
                 } else {
                     const err = await res.json();
-                    alert("Update failed: " + err.message);
+                    showToast("Update failed: " + err.message, "error");
                     if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = "Save Changes"; }
                 }
             } catch (error) {
                 console.error("Update error:", error);
-                alert("Error connecting to server");
+                showToast("Error connecting to server", "error");
                 if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = "Save Changes"; }
             }
         });
